@@ -114,3 +114,21 @@ And now, for some celcuis
   2.08 < c ~ f >  35.75
 Goodbye!
 #+end_example
+
+** 6
+
+The parentheses aren't really required.
+And, it's fine to set ~val~ as either ~char~ or ~int~ with ~%d~.
+Things get messy with ~%s~.
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int val;
+  char c;
+
+  int main() {
+    val = ((c = getchar()) != EOF);
+    printf("%d", val);
+  }
+#+END_SRC
