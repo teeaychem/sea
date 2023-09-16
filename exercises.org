@@ -1,0 +1,116 @@
+#+STARTUP: Overview
+#+PROPERTY: header-args :noweb eval :results output
+#+TITLE: K & R Exercises
+
+* chapter 1
+
+** 1
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main()
+  {
+    printf("Hello, world!\n");
+  }
+#+END_SRC
+
+#+RESULTS:
+
+** 2
+
+~\o~ is related to ~\0~?
+
+** 3
+
+Included in Ex. 4, though formatting other than a heading.
+
+** 4
+
+Inluced in Ex. 5
+
+** 5
+
+Straightfoward, with a few additions for testing whether constants are limited to ints (no).
+
+#+BEGIN_SRC C
+#include <stdio.h>
+
+/*
+  make a Fahrenheit-Celcuis table
+ */
+
+# define LOWER 0
+# define FUPPER 212
+# define FSTEP 20
+# define CUPPER 100
+# define CSTEP 7.532
+/* No typing with symbolic constants… */
+
+# define CLOSING_MSG "Goodbye!\n"
+/*
+  What's stored is determined.
+  But, what about interpreting the bits?
+ */
+
+
+int main() {
+  /* int fahr, celsius; */
+  float celsius, fahr;
+
+  printf("To begin, some fahrenheit\n");
+  celsius = 0;
+
+  /*
+    No restriction on test condition. But need everything initialised.
+    So, test before first instance, allowing to skip entirely.
+  */
+  for (fahr = FUPPER; celsius >= LOWER; fahr = fahr - FSTEP) {
+
+    celsius = (5 * (fahr - 32)) / 9.0;
+    printf("%6.2f < c ~ f > %6.2f\n", celsius, fahr);
+  }
+
+  printf("And now, for some celcuis\n");
+
+  for (celsius = CUPPER; celsius >= LOWER; celsius = celsius - CSTEP) {
+    fahr = ((celsius * 9) / 5.0) + 32;
+    printf("%6.2f < c ~ f > %6.2f\n", celsius, fahr);
+  }
+
+  printf(CLOSING_MSG);
+}
+
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+To begin, some fahrenheit
+100.00 < c ~ f > 212.00
+ 88.89 < c ~ f > 192.00
+ 77.78 < c ~ f > 172.00
+ 66.67 < c ~ f > 152.00
+ 55.56 < c ~ f > 132.00
+ 44.44 < c ~ f > 112.00
+ 33.33 < c ~ f >  92.00
+ 22.22 < c ~ f >  72.00
+ 11.11 < c ~ f >  52.00
+  0.00 < c ~ f >  32.00
+-11.11 < c ~ f >  12.00
+And now, for some celcuis
+100.00 < c ~ f > 212.00
+ 92.47 < c ~ f > 198.44
+ 84.94 < c ~ f > 184.88
+ 77.40 < c ~ f > 171.33
+ 69.87 < c ~ f > 157.77
+ 62.34 < c ~ f > 144.21
+ 54.81 < c ~ f > 130.65
+ 47.28 < c ~ f > 117.10
+ 39.74 < c ~ f > 103.54
+ 32.21 < c ~ f >  89.98
+ 24.68 < c ~ f >  76.42
+ 17.15 < c ~ f >  62.87
+  9.62 < c ~ f >  49.31
+  2.08 < c ~ f >  35.75
+Goodbye!
+#+end_example
