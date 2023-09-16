@@ -132,3 +132,41 @@ Things get messy with ~%s~.
     printf("%d", val);
   }
 #+END_SRC
+
+** 7
+
+Extends 6 and prints things a little more elegantly.
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int val;
+  char c;
+
+  int main()
+  {
+   val = ((c = getchar()) != EOF);
+
+   printf("You entered %c\n" , c);
+   printf("Testing whether %c is not equal to EOF returns %d\n", c, val);
+
+   printf("Also, if we try to print EOF the result is:\n");
+   printf("%c - with c\n", EOF);
+   printf("%d - with d\n", EOF);
+   printf("Goodbye!\n", EOF);
+   }
+#+END_SRC
+
+Sample output is
+
+#+BEGIN_SRC C
+  t
+  You entered t
+  Testing whether t is not equal to EOF returns 1
+  Also, if we try to print EOF the result is:
+  � - with c
+  -1 - with d
+  Goodbye!
+#+END_SRC
+
+So, there's no associated character (go figure!) and EOF is neither truthy or falsey.
