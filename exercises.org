@@ -216,7 +216,7 @@ As multiple things are testing for each run of the loop a ~for~ construction doe
 Could drop brackets around all the conditions.
 Could do more to format the results.
 
-** 8
+** 9
 
 A little messy.
 Set up a counter for number of blank chars seen, print only when this is less than 1.
@@ -274,7 +274,7 @@ Not ideal if wish to do similar things with different chars, as each other check
   }
 #+END_SRC
 
-** 9
+** 10
 
 Getting even more messy.
 If a replacement is needed, signal to first output ~\~ and update ~c~ to relevant char.
