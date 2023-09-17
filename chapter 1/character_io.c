@@ -36,7 +36,10 @@ int main() {
       if (c == '\\') {
 	replacement = 1;
       }
-
+      /* if (c == '\b') { */
+      /* 	c = 'b'; */
+      /* 	replacement = 1; */
+      /* } */
       if (replacement > 0) {
 	putchar('\\');
       }

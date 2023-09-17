@@ -348,3 +348,19 @@ int main() {
   printf("Goodbye!\n");
 }
 #+END_SRC
+
+Backspace is difficult.
+
+Following the above, the case would be:
+
+#+BEGIN_SRC C
+  if (c == '\b') {
+    c = 'b';
+    replacement = 1;
+  }
+#+END_SRC
+
+However, characters are only passed on after pressing enter.
+So, there's no way to pass on a backspace.
+
+Note, this has various effects, esp. with respect to when a newline is or isn't printed.
