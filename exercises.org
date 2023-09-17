@@ -170,3 +170,49 @@ Sample output is
 #+END_SRC
 
 So, there's no associated character (go figure!) and EOF is neither truthy or falsey.
+
+** 8
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main() {
+
+    long charCount;
+    int lineCount, tabCount, blankCount;
+    char c;
+
+    charCount = 0;
+    lineCount = 0;
+    tabCount = 0;
+    blankCount = 0;
+
+    while ((c = getchar()) != EOF) {
+
+      if (c == '\n') {
+	++lineCount;
+      }
+      else if (c == ' ') {
+	++blankCount;
+      }
+      else if (c == '\t') {
+	++tabCount;
+      }
+      else {
+	++charCount;
+      }
+    }
+
+    printf("The text contained:\n");
+    printf("%d lines\n", lineCount);
+    printf("%d tabs\n", tabCount);
+    printf("%d blank characters\n", blankCount);
+    printf("%ld (non-blank) characters\n", charCount);
+    printf("Goodbye!\n");
+  }
+#+END_SRC
+
+As multiple things are testing for each run of the loop a ~for~ construction doesn't make sense here.
+Could drop brackets around all the conditions.
+Could do more to format the results.
+
