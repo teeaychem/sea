@@ -216,3 +216,135 @@ As multiple things are testing for each run of the loop a ~for~ construction doe
 Could drop brackets around all the conditions.
 Could do more to format the results.
 
+** 8
+
+A little messy.
+Set up a counter for number of blank chars seen, print only when this is less than 1.
+Not ideal if wish to do similar things with different chars, as each other check needs to rest.
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main() {
+
+    long charCount;
+    int lineCount, tabCount, blankCount, previousBlank, blanksLost;
+    char c;
+
+    charCount = 0;
+    lineCount = 0;
+    tabCount = 0;
+    blankCount = 0;
+    previousBlank = 0;
+    blanksLost = 0;
+
+    while ((c = getchar()) != EOF) {
+
+      if (c == ' ') {
+	++blankCount;
+	++previousBlank;
+      }
+      else {
+	if (c == '\n') {
+	  ++lineCount;
+	}
+	else if (c == '\t') {
+	  ++tabCount;
+	}
+	else {
+	  ++charCount;
+	}
+	if (previousBlank > 1) {
+	  blanksLost = blanksLost + (previousBlank - 1);
+	}
+	previousBlank = 0;
+      }
+
+      if (previousBlank < 2) {
+	putchar(c);
+      }
+    }
+
+    printf("The text contained:\n");
+    printf("%d lines\n", lineCount);
+    printf("%d tabs\n", tabCount);
+    printf("%d blank characters (%d were lost)\n", blankCount, blanksLost);
+    printf("%ld (non-blank) characters\n", charCount);
+    printf("Goodbye!\n");
+  }
+#+END_SRC
+
+** 9
+
+Getting even more messy.
+If a replacement is needed, signal to first output ~\~ and update ~c~ to relevant char.
+Note, special case for newline, as to make things look nice, we want to both display ~\n~ and also still print a newline.
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+int main() {
+
+  long charCount;
+  int lineCount, tabCount, blankCount, previousBlank, blanksLost, replacement;
+  char c;
+
+  charCount = 0;
+  lineCount = 0;
+  tabCount = 0;
+  blankCount = 0;
+  previousBlank = 0;
+  blanksLost = 0;
+  replacement = 0;
+
+  while ((c = getchar()) != EOF) {
+
+    replacement = 0;
+
+    if (c == ' ') {
+      ++blankCount;
+      ++previousBlank;
+    }
+    else {
+      if (c == '\n') {
+	c = 'n';
+	++lineCount;
+	replacement = 2; /* special case to flag newline still needed */
+      }
+      if (c == '\t') {
+	c = 't';
+	++tabCount;
+	replacement = 1;
+      }
+      if (c == '\\') {
+	replacement = 1;
+      }
+
+      if (replacement > 0) {
+	putchar('\\');
+      }
+      else {
+	++charCount;
+      }
+      if (previousBlank > 1) {
+	blanksLost = blanksLost + (previousBlank - 1);
+      }
+      previousBlank = 0;
+    }
+
+    if (previousBlank < 2) {
+      putchar(c);
+      if (replacement == 2) {
+	putchar('\n');
+      }
+    }
+  }
+
+  printf("The text contained:\n");
+  printf("%d lines\n", lineCount);
+  printf("%d tabs\n", tabCount);
+  printf("%d blank characters (%d were lost)\n", blankCount, blanksLost);
+  printf("%ld (non-blank) characters\n", charCount);
+  printf("Goodbye!\n");
+}
+#+END_SRC
