@@ -4,7 +4,7 @@
 
 * chapter 1
 
-** 1
+** 1.1
 
 #+BEGIN_SRC C
   #include <stdio.h>
@@ -17,19 +17,19 @@
 
 #+RESULTS:
 
-** 2
+** 1.2
 
 ~\o~ is related to ~\0~?
 
-** 3
+** 1.3
 
 Included in Ex. 4, though formatting other than a heading.
 
-** 4
+** 1.4
 
 Inluced in Ex. 5
 
-** 5
+** 1.5
 
 Straightfoward, with a few additions for testing whether constants are limited to ints (no).
 
@@ -115,7 +115,7 @@ And now, for some celcuis
 Goodbye!
 #+end_example
 
-** 6
+** 1.6
 
 The parentheses aren't really required.
 And, it's fine to set ~val~ as either ~char~ or ~int~ with ~%d~.
@@ -133,7 +133,7 @@ Things get messy with ~%s~.
   }
 #+END_SRC
 
-** 7
+** 1.7
 
 Extends 6 and prints things a little more elegantly.
 
@@ -171,7 +171,7 @@ Sample output is
 
 So, there's no associated character (go figure!) and EOF is neither truthy or falsey.
 
-** 8
+** 1.8
 
 #+BEGIN_SRC C
   #include <stdio.h>
@@ -216,7 +216,7 @@ As multiple things are testing for each run of the loop a ~for~ construction doe
 Could drop brackets around all the conditions.
 Could do more to format the results.
 
-** 9
+** 1.9
 
 A little messy.
 Set up a counter for number of blank chars seen, print only when this is less than 1.
@@ -274,7 +274,7 @@ Not ideal if wish to do similar things with different chars, as each other check
   }
 #+END_SRC
 
-** 10
+** 1.10
 
 Getting even more messy.
 If a replacement is needed, signal to first output ~\~ and update ~c~ to relevant char.
@@ -364,3 +364,152 @@ However, characters are only passed on after pressing enter.
 So, there's no way to pass on a backspace.
 
 Note, this has various effects, esp. with respect to when a newline is or isn't printed.
+
+** 1.11
+
+Test the word count program against some texts where the count is known.
+In particular, texts which include a variety of characters, esp. special characters.
+
+For example, what happens with numbers?
+
+Should 21 be no words, one word ('21' or 'twenty-one'), or two words (twenty one)?
+
+Similarly, what about (3/11)?
+
+And, what happens with something like ^B (the backspace char)?
+
+** 1.12
+
+Moslty a modification of word counting in the text.
+Just, without the counting, and the body of empty case involving a flag.
+
+#+BEGIN_SRC C
+#include <stdio.h>
+
+#define IN 1
+#define OUT 0
+
+int main() {
+
+  int c, state;
+  state = OUT;
+
+  while ((c = getchar()) != EOF) {
+    if (c == ' ' || c == '\t') {
+      if (state == IN) {
+	putchar('\n');
+	state = OUT;
+      }
+    } else {
+      state = IN;
+      putchar(c);
+    }
+  }
+}
+#+END_SRC
+
+** 1.13
+
+Histogram in vertical orientaion.
+
+Most interesting thing here is resizing the array to deal with arbitrary word legnths.
+It just works to allocate more!
+
+Sample output:
+
+#+BEGIN_SRC C
+  a a a
+  bb bb
+  ccc ccc ccc ccc ccc
+  dddd
+  eeeeee eeeeee
+  fffffff
+  ggggggggg ggggggggg ggggggggg
+
+	 |
+	 |
+   |     |                 |
+   |  |  |        |        |
+   |  |  |  |     |  |     |
+   1  2  3  4  5  6  7  8  9
+#+END_SRC
+
+For the histogram, figure out the maximum count, then work down to 0 printing a bar whenever the count for the number is within the scope.
+This uses a lot of for loops, and some things could be tidied up a little.
+
+*** proc
+
+Variables named like this aren't much better than magic numbers…
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  #define IN 1
+  #define OUT 0
+
+  int main() {
+
+    int i, j, c, wc, state, old_wl, new_wl, max_wl;
+
+    wc = max_wl = old_wl = 0;
+    new_wl = 2;
+    int wl[new_wl];
+    state = OUT;
+
+    for (i = old_wl; i < new_wl; ++i) {
+      wl[i] = 0;
+    }
+
+    while ((c = getchar()) != EOF) {
+      if (c == ' ' || c == '\t' || c == '\n') {
+	if (state == IN) {
+	  state = OUT;
+
+	  if (wc >= new_wl) { /* extend the array if needed */
+	    old_wl = new_wl;
+	    new_wl = wc;
+	    for (i = old_wl; i < new_wl; ++i) {
+	      wl[i] = 0;
+	    }
+	  }
+
+	  ++wl[wc - 1];
+	  wc = 0;
+	}
+      } else {
+	state = IN;
+	++wc;
+      }
+    }
+
+    /* figure out max word length could
+       be done while building but assume
+       fewer lengths than words
+    ,*/
+    for (i = 0; i < new_wl; ++i) {
+      if (wl[i] > max_wl) {
+	max_wl = wl[i];
+      }
+    }
+
+    /* make histogram.
+       go from the max length down and print
+       a bar if count exceeds current
+    ,*/
+    for (i = max_wl; i >= 0; --i) {
+      for (j = 0; j < new_wl; ++j) {
+	if (wl[j] > i) {
+	  printf(" | ");
+	} else {
+	  printf("   ");
+	}
+      }
+      printf("\n");
+    }
+    /* finish off with integer */
+    for (j = 1; j <= new_wl; ++j) {
+      printf(" %d ", j);
+    }
+    printf("\n");
+  }
+#+END_SRC
