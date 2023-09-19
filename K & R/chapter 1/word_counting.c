@@ -2,69 +2,65 @@
 
 #define IN 1
 #define OUT 0
+#define MAX_WL 5
 
-int main() {
+  int main() {
 
-  int i, j, c, wc, state, old_wl, new_wl, max_wl;
+    int i, j, c, wc, state, top_wf, top_wl;
 
-  wc = max_wl = old_wl = 0;
-  new_wl = 2;
-  int wl[new_wl];
-  state = OUT;
+    wc = top_wf = top_wl = 0;
+    int wl[MAX_WL];
+    state = OUT;
 
-  for (i = old_wl; i < new_wl; ++i) {
-    wl[i] = 0;
-  }
+    for (i = 0; i < MAX_WL; ++i) {
+      wl[i] = 0;
+    }
 
-  while ((c = getchar()) != EOF) {
-    if (c == ' ' || c == '\t' || c == '\n') {
-      if (state == IN) {
-	state = OUT;
-
-	if (wc >= new_wl) { /* extend the array if needed */
-	  old_wl = new_wl;
-	  new_wl = wc;
-	  for (i = old_wl; i < new_wl; ++i) {
-	    wl[i] = 0;
+    while ((c = getchar()) != EOF) {
+      if (c == ' ' || c == '\t' || c == '\n') {
+	if (state == IN) {
+	  state = OUT;
+	  if (wc <= MAX_WL) {
+	    ++wl[wc - 1]; /* no need to count 0 */
 	  }
+	  wc = 0;
 	}
-
-	++wl[wc - 1];
-	wc = 0;
-      }
-    } else {
-      state = IN;
-      ++wc;
-    }
-  }
-
-  /* figure out max word length could
-     be done while building but assume
-     fewer lengths than words
-  */
-  for (i = 0; i < new_wl; ++i) {
-    if (wl[i] > max_wl) {
-      max_wl = wl[i];
-    }
-  }
-
-  /* make histogram.
-     go from the max length down and print
-     a bar if count exceeds current
-  */
-  for (i = max_wl; i >= 0; --i) {
-    for (j = 0; j < new_wl; ++j) {
-      if (wl[j] > i) {
-	printf(" | ");
       } else {
-	printf("   ");
+	state = IN;
+	++wc;
       }
+    }
+
+    /* figure out max word length could
+       be done while building but assume
+       fewer lengths than words
+    */
+    for (i = 0; i < MAX_WL; ++i) {
+      if (wl[i] != 0) {
+	top_wl = i + 1;
+	if (wl[i] > top_wf) {
+	  top_wf = wl[i];
+	}
+      }
+    }
+
+    /* make histogram.
+       go from the max length down and print
+       a bar if count exceeds current
+    */
+    for (i = top_wf; i >= 0; --i) {
+      for (j = 0; j < top_wl; ++j) {
+	if (wl[j] > i) {
+	  printf("  |");
+	} else {
+	  printf("   ");
+	}
+      }
+      printf("\n");
+    }
+    /* finish off with integer */
+    for (j = 0; j < top_wl; ++j) {
+      printf("%3d", j + 1);
     }
     printf("\n");
   }
-  /* finish off with integer */
-  for (j = 1; j <= new_wl; ++j) {
-    printf(" %d ", j);
-  }
-  printf("\n");
-}
