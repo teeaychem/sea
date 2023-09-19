@@ -412,9 +412,6 @@ int main() {
 
 Histogram in vertical orientaion.
 
-Most interesting thing here is resizing the array to deal with arbitrary word legnths.
-It just works to allocate more!
-
 Sample output:
 
 #+BEGIN_SRC C
@@ -437,9 +434,87 @@ Sample output:
 For the histogram, figure out the maximum count, then work down to 0 printing a bar whenever the count for the number is within the scope.
 This uses a lot of for loops, and some things could be tidied up a little.
 
-*** proc
+A highly dodgy initial version of the program is preserved a revised version.
+
+*** prog
+
+Note, the maximum word length is specified, and array is initialised to this length, and we only add a count to the record when the word length falls within the maximum.
+The size of arrays is fixed, and things go wrong is this is forgotten about.
+
+#+BEGIN_SRC C
+#include <stdio.h>
+
+#define IN 1
+#define OUT 0
+#define MAX_WL 20
+
+  int main() {
+
+    int i, j, c, wc, state, top_wf, top_wl;
+
+    wc = top_wf = top_wl = 0;
+    int wl[MAX_WL];
+    state = OUT;
+
+    for (i = 0; i < MAX_WL; ++i) {
+      wl[i] = 0;
+    }
+
+    while ((c = getchar()) != EOF) {
+      if (c == ' ' || c == '\t' || c == '\n') {
+	if (state == IN) {
+	  state = OUT;
+	  if (wc <= MAX_WL) {
+	    ++wl[wc - 1]; /* no need to count 0 */
+	  }
+	  wc = 0;
+	}
+      } else {
+	state = IN;
+	++wc;
+      }
+    }
+
+    /* figure out max word length could
+       be done while building but assume
+       fewer lengths than words
+    */
+    for (i = 0; i < MAX_WL; ++i) {
+      if (wl[i] != 0) {
+	top_wl = i + 1;
+	if (wl[i] > top_wf) {
+	  top_wf = wl[i];
+	}
+      }
+    }
+
+    /* make histogram.
+       go from the max length down and print
+       a bar if count exceeds current
+    */
+    for (i = top_wf; i >= 0; --i) {
+      for (j = 0; j < top_wl; ++j) {
+	if (wl[j] > i) {
+	  printf("  |");
+	} else {
+	  printf("   ");
+	}
+      }
+      printf("\n");
+    }
+    /* finish off with integer */
+    for (j = 0; j < top_wl; ++j) {
+      printf("%3d", j + 1);
+    }
+    printf("\n");
+  }#+END_SRC
+
+*** bad prog
 
 Variables named like this aren't much better than magic numbers…
+
+I'm not sure why I thought this worked as I don't to anything to suggest the length of wl has been updated.
+All I do is continue to write past the space allocated to wl and hope things work out.
 
 #+BEGIN_SRC C
   #include <stdio.h>
@@ -472,7 +547,6 @@ Variables named like this aren't much better than magic numbers…
 	      wl[i] = 0;
 	    }
 	  }
-
 	  ++wl[wc - 1];
 	  wc = 0;
 	}
@@ -512,4 +586,72 @@ Variables named like this aren't much better than magic numbers…
     }
     printf("\n");
   }
+#+END_SRC
+
+** 1.14
+
+A little easier than counting words as character choices are known beforehand.
+Here, lowercase alphabetic characters are counted.
+Uppercase could be added by a an additional check and further offset to obtain lowercase value.
+
+*** sample output
+
+#+BEGIN_SRC C
+   5                          |              |
+   4  |                       |              |  |           |                 |
+   3  |                       |     |        |  |           |                 |
+   2  |        |  |     |     |     |     |  |  |           |                 |
+   1  |        |  |     |     |     |     |  |  |        |  |                 |
+   0  |        |  |  |  |  |  |     |     |  |  |  |     |  |  |        |     |  |
+      a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z
+#+END_SRC
+
+*** prog
+
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main() {
+
+    int i, j, c, max_wl;
+
+    max_wl = 0;
+
+    int wl[26];
+
+    for (i = 0; i < 26; ++i) {
+      wl[i] = 0;
+    }
+
+    while ((c = getchar()) != EOF) {
+      if (c >= 'a' && c <= 'z') {
+	++wl[c - 'a'];
+      }
+    }
+
+    for (i = 0; i < 26; ++i) {
+      if (wl[i] > max_wl) {
+	max_wl = wl[i];
+      }
+    }
+
+    printf("\n");
+    for (i = max_wl - 1; i >= 0; --i) {
+      printf(" %3d ", i);
+      for (j = 0; j < 26; ++j) {
+	if (wl[j] > i) {
+	  printf(" | ");
+	} else {
+	  printf("   ");
+	}
+      }
+      printf("\n");
+    }
+    printf("     ");
+    for (j = 0; j < 26; ++j) {
+      printf(" %c ", j + 'a');
+    }
+    printf("\n");
+    }
 #+END_SRC
