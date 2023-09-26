@@ -1019,14 +1019,11 @@ This is nice to do when reading a character at a time.
 With an array, this is doable, but a little more effort.
 We'd need to set a limit on the line width and then shift every character the relevant number of spaces left/right.
 
+~main~ calls ~detab~ and ~STOPDIST~ is a symbolic constant.
+
 #+BEGIN_SRC C
-  #include <stdio.h>
-
-  #define STOPDIST 2
-
-  int main()
+  void detab(void)
   {
-
     int afterTab = 0;
     char c;
 
@@ -1047,7 +1044,50 @@ We'd need to set a limit on the line width and then shift every character the re
 	}
       }
     }
-
-    return 0;
   }
 #+END_SRC
+
+
+** 1-21
+
+Similar to detab.
+
+Given anything other than a space we re-add any skipped spaces not taken up by a tab.
+Then, add the char and update distance after a tabstop.
+
+With spaces, keep a count and when a tabstop is past, add a tab and reset the counters.
+
+#+BEGIN_SRC C
+void entab(void)
+{
+
+  int spacesSeen = 0;
+  int afterTab = 0;
+  char c;
+
+  while ((c = getchar()) != EOF) {
+
+    if (c == ' ') {
+      ++spacesSeen;
+      if ((afterTab + spacesSeen) == STOPDIST) {
+	putchar('\t');
+	afterTab = 0;
+	spacesSeen = 0;
+      }
+    }
+    else {
+      while (spacesSeen > 0) {
+	putchar(' ');
+	--spacesSeen;
+	++afterTab;
+      }
+      putchar(c);
+      ++afterTab;
+
+      afterTab = afterTab % STOPDIST;
+    }
+  }
+}
+#+END_SRC
+
+This was kind of difficult, if only due to thinking about tab stops and the importance of keeping track of both spaces /and/ characters.
