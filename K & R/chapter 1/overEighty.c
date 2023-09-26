@@ -1,38 +1,29 @@
 #include <stdio.h>
 
-#define MAXLINE 10
+#define MAXLINE 101
 
 int getlinealt(char line[], int lim); /* getline is defined elsewhere */
 void copy(char to[], char from[]);
 
-/* print longest input line */
+/* print input lines over 80 chars */
 /* ^D in terminal to enter EOF. Useful: stty all  */
 
 int main()
 {
 
   int len;
-  int max = 0;
-  int lineCount = 0;
+  int min = 80;
   char line[MAXLINE];
   char longest[MAXLINE];
 
   while ((len = getlinealt(line, MAXLINE)) > 0)
     {
-      lineCount += 1;
-      if (len > max) {
-	max = len;
+      if (len > min) {
 	copy(longest, line);
+	printf("The previous line was over %d characters.\n", min);
+	printf("Here it is (up to the first %d characters) again:\n%s\n", (MAXLINE - 1), longest);
       }
     }
-
-  lineCount += 1;
-
-  if (max > 0) {
-    printf("The longest of %d lines had %d characters.\n", lineCount, max);
-    printf("The longest line (up to a limit of %d characters) was:\n", (MAXLINE - 1));
-    printf("%s\n", longest);
-  }
 
   return 0;
 }
