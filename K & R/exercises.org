@@ -1004,3 +1004,50 @@ int main()
   return 0;
 }
 #+END_SRC
+
+** 1-20
+
+Needed some clarification on this!
+
+https://stackoverflow.com/questions/7178201/kr-exercise-1-20-need-some-clarification
+
+n specifies the distance between tab stops.
+
+So, the task is to keep track of how far the next tab stop is.
+
+This is nice to do when reading a character at a time.
+With an array, this is doable, but a little more effort.
+We'd need to set a limit on the line width and then shift every character the relevant number of spaces left/right.
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  #define STOPDIST 2
+
+  int main()
+  {
+
+    int afterTab = 0;
+    char c;
+
+    while ((c = getchar()) != EOF) {
+
+      if (c == '\t') {
+	for (int i = STOPDIST - afterTab; i > 0; i--) {
+	  putchar(' ');
+	}
+	afterTab = 0;
+      }
+      else {
+	putchar(c);
+	if (c == '\n') {
+	  afterTab = 0;
+	} else {
+	  afterTab = ((afterTab + 1) % STOPDIST);
+	}
+      }
+    }
+
+    return 0;
+  }
+#+END_SRC
