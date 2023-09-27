@@ -1519,3 +1519,41 @@ Could return j + 1 if US indexing.
     return j;
   }
 #+END_SRC
+
+** 2-6
+
+This took some learning, so things are worked out in full.
+
+#+BEGIN_SRC C
+  unsigned setbits(unsigned x, int p, int n, unsigned y)
+  {
+    unsigned rightmostYMask = ~((~0 >> n) << n);
+    unsigned rightmostNofY = rightmostYMask & y;
+    unsigned rightmostNofYatP = rightmostNofY << (p - n);
+    unsigned XwithoutP = (x >> p) << p;
+    unsigned XwithNfromY = XwithoutP | rightmostNofYatP;
+    unsigned leftoverPMask = ~(~0 >> (p - n) << (p - n));
+    unsigned leftoverP = x & leftoverPMask;
+    unsigned replacement = XwithNfromY | leftoverP;
+
+    return replacement;
+  }
+#+END_SRC
+
+- ~rightmostYMask~
+  - Take however many 1s, move left and right by n to have n 0s at the end.
+    Then, invert to get 0s and then n 1s at the end.
+- ~rightmostNofY~
+  - and previous with y.
+- ~rightmostNofYatP~
+  - shift previous left p minus n spaces, as we already have n bits.
+- ~XwithoutP~
+  - move x left and right p to set the rightmost p bits to 0.
+- ~XwithNfromY~
+  - Now have the first ?? bits of n and then 0s.
+    So, or this with the bits from y shifted over, and we get n bits from y in position p.
+    Final task is to restore any leftover bits from x.
+- ~leftoverPMask~, ~leftoverP~
+  - Same idea as ~rightmostYMask~ and ~rightmostNofY~.
+- ~replacement~
+  - In full: ~~XwithoutP | rightmostNofYatP | leftoverP~.
