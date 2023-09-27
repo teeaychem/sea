@@ -27,10 +27,28 @@ int main()
 
 int getlinealt(char s[], int lim)
 {
-  int c, i;
+  char c;
+  int i = 0;
+  int ok = 1;
 
-  for (i=0; i<lim-1 && (c=getchar())!=EOF && c!='\n'; ++i)
-    s[i] = c;
+  while (ok) {
+    if (i < lim-1) {
+      c = getchar();
+      if (c != EOF) {
+	if (c != '\n') {
+	  s[i] = c;
+	  ++i;
+	} else {
+	  ok = 0;
+	}
+      } else {
+	ok = 0;
+      }
+    } else {
+      ok = 0;
+    }
+  }
+
   if (c == '\n') {
     s[i] = c;
     ++i;
