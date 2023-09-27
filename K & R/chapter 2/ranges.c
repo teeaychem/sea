@@ -34,7 +34,9 @@ int main() {
 
   printf("%f\n", max);
   printf("%f\n", max + 1);
-  printf("\nFinal results:\n \tMax: %f\n \tMin: %f\n", max, min);
+  printf("\nFinal results:"
+	 "\n \tMax: %f\n"
+	 "\tMin: %f\n", max, min);
 
   if (DISPLAY_LIMITS) {
     printf("Char:\n");
