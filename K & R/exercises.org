@@ -1047,7 +1047,6 @@ We'd need to set a limit on the line width and then shift every character the re
   }
 #+END_SRC
 
-
 ** 1-21
 
 Similar to detab.
@@ -1233,3 +1232,63 @@ As a character I think it's fine to print, even if initial on row.
 #+END_SRC
 
 
+* chapter 2
+
+** 2-1
+
+The first approach is to use a larger type to calculate the bounds of a smaller type.
+For ~char~, ~short~, ~int~, and ~long~ max, the following template works:
+
+Note, the explicit casts to ~char~ need to be updated for ~long~, etc.
+These are needed to ensure we're testing for equal representation with respect to the types of interest.
+
+Work is done by approximation.
+Start with 1 and then double this until equality fails to hold on next double.
+Then, keep adding fractions of the current result until equality breaks.
+
+The idea here for max is to approximate by addition, but to grow the amount to be added fairly fast.
+And, repeat this until there's nothing more to be added without breaking equality.
+
+Likewise for min, but with subtraction.
+
+Float works here, but gives a different result compared to ~FLT_MAX~ and ~FLT_MIN~.
+(1.67772e+07 max and +1 does nothing.)
+
+#+BEGIN_SRC C
+  #include <stdio.h>
+
+  int main() {
+
+    double dbl = 1;
+    char max = 1;
+
+    while ((dbl + 1) == (char) (max + 1)) {
+
+      double j = 1;
+
+      while (((dbl + (j * 2)) == (char) (max + (j * 2))) ) { j = j * 2; }
+
+      dbl = dbl + j;
+      max = max + j;
+      }
+
+    dbl = 1;
+    char min = 1;
+
+    while ((dbl - 1) == (char) (min - 1)) {
+
+      double j = 1;
+
+      while ((dbl - (j * 2)) == (char) (min - (j * 2))) { j = j * 2; }
+
+      dbl = dbl - j;
+      min = min - j;
+    }
+
+    printf("\nFinal results:\n \tMax: %d\n \tMin: %d\n", max, min);
+
+    }
+#+END_SRC
+
+Maybe a different approach was intended, as I don't think casting has been introduced yet.
+Though, this can be avoided with some 'temporary' variables, or altered tests.
