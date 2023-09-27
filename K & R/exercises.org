@@ -1292,3 +1292,50 @@ Float works here, but gives a different result compared to ~FLT_MAX~ and ~FLT_MI
 
 Maybe a different approach was intended, as I don't think casting has been introduced yet.
 Though, this can be avoided with some 'temporary' variables, or altered tests.
+
+** 2-2
+
+The loop:
+
+#+BEGIN_SRC C
+  for (i=0; i<lim-1 && (c=getchar()) !=‘ヽn' && c != EOF; ++i)
+    s[i] - c;
+#+END_SRC
+
+Is rewritten as:
+
+#+BEGIN_SRC C
+  char c;
+  int i = 0;
+  int ok = 1;
+
+  while (ok) {
+    if (i < lim-1) {
+      c = getchar();
+      if (c != EOF) {
+	if (c != '\n') {
+	  s[i] = c;
+	  ++i;
+	} else {
+	  ok = 0;
+	}
+      } else {
+	ok = 0;
+      }
+    } else {
+      ok = 0;
+    }
+  }
+
+  if (c == '\n') {
+    s[i] = c;
+    ++i;
+  }
+  s[i] = '\0';
+  return i;
+#+END_SRC
+
+As we're effectively testing for a conjunction the var ~ok~ stores what would be the value of the conjunction.
+We then work through each conjunct by an if, such that ~ok~ is set to false/0 unless the condition is satisfied.
+
+Note, nothing depends on the order of the newline/EOF test (apart from a small increase in efficiency if the program isn't terminated at start most times) so these are switched.
