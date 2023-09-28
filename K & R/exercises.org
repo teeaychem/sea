@@ -1591,6 +1591,37 @@ unsigned invert(unsigned x, int p, int n)
 }
 #+END_SRC
 
+** 2-8
+
+A little harder than expected.
+Though, things fell into place when I realised ~(faster)Bitcount~ could be used to figure out how many bits there are to work with.
+
+Here's the quick function:
+
+#+BEGIN_SRC C
+  int possibleBitcount()
+  {
+    return fasterBitcount(~0);
+  }
+#+END_SRC
+
+I.e., could the total bits when all possible bits are set to 1!
+
+Now, to rotate everything right:
+
+#+BEGIN_SRC C
+  unsigned rotright(unsigned x, int n)
+  {
+    int totalBits = possibleBitcount();
+    int reducedN = n % totalBits;
+    unsigned newLeft = x << (totalBits - reducedN);
+    unsigned newRightMask = ~((~0 >> (totalBits - reducedN)) << (totalBits - reducedN));
+    unsigned newRight = (x >> reducedN) & newRightMask;
+    unsigned newBits = newLeft | newRight;
+
+    return newBits;
+  }
+#+END_SRC
 
 ** 2-9
 
