@@ -1558,6 +1558,39 @@ This took some learning, so things are worked out in full.
 - ~replacement~
   - In full: ~~XwithoutP | rightmostNofYatP | leftoverP~.
 
+** 2-7
+
+Inverting can be seen as a special case of replacement where the replacement bits come from taking the complement of the initial.
+
+So, this is the approach taken.
+
+~replaceBits~ is a simple variant of ~setbits~, where we shift the initial y mask to get bits from p rather than the rightmost bits.
+
+#+BEGIN_SRC C
+  /* like setbits, but instead of the rightmost n of y, take n from y at p
+ key difference is first mask, which now shifts back to position. */
+unsigned replaceBits(unsigned x, int p, int n, unsigned y)
+{
+  unsigned YMask1 = ~((~0 >> n) << p);
+  unsigned YMask2 = ((~0 >> n) << (p - n));
+  unsigned YMask = YMask1 & YMask2;
+  unsigned rightmostNofYatP = YMask & y;
+  unsigned XwithoutP = (x >> p) << p;
+  unsigned XwithNfromY = XwithoutP | rightmostNofYatP;
+  unsigned leftoverPMask = ~(~0 >> (p - n) << (p - n));
+  unsigned leftoverP = x & leftoverPMask;
+  unsigned replacement = XwithNfromY | leftoverP;
+
+  return replacement;
+}
+
+/* to invert n bits from p replace n bits from p with complement */
+unsigned invert(unsigned x, int p, int n)
+{
+  return replaceBits(x, p, n, ~x);
+}
+#+END_SRC
+
 
 ** 2-9
 
