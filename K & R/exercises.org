@@ -1821,3 +1821,48 @@ void expand(char s1[], char s2[])
   s2[s2i] = '\0';
 }
 #+END_SRC
+
+** 3-4
+
+The problem is there's no way to represent -n when n = -(2^(wordsize-1)).
+This is due to 0 being positive.
+So, max negative = max positive + 1.
+
+To fix this, we can take the bit complement of a negative number and 'manually' add one.
+
+This results in a special first case, so the do… while… is rewritten to special case… (regular) while…
+
+The special case is just like the reguar case expect for negative adjustment is made to record an extra one.
+As we still need to be careful of the (bit) size of n, this means ~(n /= 10)~ is repeated in all cases.
+
+#+BEGIN_SRC C
+  void itoaPlus(int n, char s[])
+  {
+    int i, sign;
+    if ((sign = n) < 0)
+      n = ~n;
+    i = 0;
+
+    if (sign < 0) {
+      if (n % 10 < 9) {
+	s[i++] = n % 10 + '1';
+	(n /= 10);
+      } else {
+	s[i++] = '0';
+	(n /= 10);
+	++n;
+      }
+    } else {
+      s[i++] = n % 10 + '0';
+    }
+
+    while ((n /= 10) > 0) {
+      s[i++] = n % 10 + '0';
+    }
+
+    if (sign < 0)
+      s[i++] = '-';
+    s[i] = '\0';
+    reverse(s);
+  }
+#+END_SRC
