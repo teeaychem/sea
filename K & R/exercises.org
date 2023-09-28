@@ -1651,3 +1651,13 @@ Typed up:
     return b;
   }
 #+END_SRC
+
+** 2-10
+
+#+BEGIN_SRC C
+  int altLower(int c)
+  {
+    return (c >= 'A' && c <= 'Z') ? c + 'a' - 'A' : c;
+  }
+#+END_SRC
+
