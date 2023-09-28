@@ -1,7 +1,9 @@
 #include <stdio.h>
 
-void testITOA(int n, char itoaStr[], char itoaPlusStr[]);
+void testITOA(int n);
 
+int getChar(int n);
+void itob(int n, char s[], int b);
 void itoa(int n, char s[]);
 void itoaPlus(int n, char s[]);
 int reverse(char s[]);
@@ -13,21 +15,24 @@ double power(double n, double m);
 
 int main()
 {
-  char itoaStr[100];
-  char itoaPlusStr[100];
 
   int thatNumb = -(~0 >> possibleBitcount() << (possibleBitcount() - 1));
-  testITOA(thatNumb, itoaStr, itoaPlusStr);
-  testITOA(5, itoaStr, itoaPlusStr);
-  testITOA(-5, itoaStr, itoaPlusStr);
-  testITOA(0, itoaStr, itoaPlusStr);
-  
+  testITOA(thatNumb);
+  testITOA(5);
+  testITOA(-5);
+  testITOA(0);
 
+  char itobStr[100];
+  itob(-30, itobStr, 16);
+  printf("Result:\t\t\t%s\n", itobStr);
   return 0;
 }
 
-void testITOA(int n, char itoaStr[], char itoaPlusStr[])
+void testITOA(int n)
 {
+  char itoaStr[100];
+  char itoaPlusStr[100];
+
   printf("Expected:\t\t\t%d\n", n);
   printf("In binary:\t\t\t");
   displayBinary(n, possibleBitcount());
@@ -38,6 +43,49 @@ void testITOA(int n, char itoaStr[], char itoaPlusStr[])
   itoaPlus(n, itoaPlusStr);
   printf("Result from itoa+:\t%s\n\n", itoaPlusStr);
 }
+
+int getChar(int n)
+{
+    if (n < 10) {
+      return n + '0';
+    } else {
+      return (n - 10) + 'a';
+    }
+}
+
+/* works for b < 37, 0 to 9 then a to z  */
+void itob(int n, char s[], int b)
+{
+  int i, sign;
+  if ((sign = n) < 0)
+    n = ~n;
+  i = 0;
+
+  if (sign < 0) {
+    if ((n % b) < (b - 1)) {
+      s[i++] = getChar((n % b) + 1);
+      (n /= b);
+    } else {
+      s[i++] = '0';
+      (n /= b);
+      ++n;
+    }
+  } else {
+    s[i++] = getChar(n % b);
+    (n /= b);
+  }
+
+  while (n > 0) {
+    s[i++] = getChar(n % b);
+    (n /= b);
+  }
+
+  if (sign < 0)
+    s[i++] = '-';
+  s[i] = '\0';
+  reverse(s);
+}
+
 
 /* itoa: convert n to characters in s */
 void itoa(int n, char s[])
@@ -79,10 +127,12 @@ void itoaPlus(int n, char s[])
     }
   } else {
     s[i++] = n % 10 + '0';
+    (n /= 10);
   }
 
-  while ((n /= 10) > 0) {
+  while (n > 0) {
     s[i++] = n % 10 + '0';
+    (n /= 10);
   }
 
   if (sign < 0)
