@@ -1688,3 +1688,73 @@ Keep going until there's no difference between low and high, then check to see w
     return -1; /* no match */
   }
 #+END_SRC
+
+** 3-2
+
+There's nothing too interesting here.
+As chars are ints it's easy to switch on the percieved content of a char.
+Need two separate pointers to elems of the arrays as may need to add an extra character (~escape~) or remove an extra character (~unescape~).
+
+Most of the time was tracking down a bug due to writing ~s[j] = t[j]~ in the else clause of ~unescape~.
+
+#+BEGIN_SRC C
+  void escape(char s[], char t[])
+  {
+    int i = 0;
+    int j = 0;
+
+    while (t[i] != '\0') {
+
+      switch (t[i]) {
+      case '\t':
+	s[j] = '\\';
+	++j;
+	s[j] = 't';
+	break;
+      case '\n':
+	s[j] = '\\';
+	++j;
+	s[j] = 'n';
+	break;
+      default:
+	s[j] = t[i];
+      }
+      ++j;
+      ++i;
+    }
+    s[j] = '\0';
+  }
+
+#+END_SRC
+
+#+BEGIN_SRC C
+  void unescape(char s[], char t[])
+  {
+    int i = 0;
+    int j = 0;
+
+    while (t[i] != '\0') {
+      if (t[i] == '\\') {
+	switch (t[i + 1]) {
+	case 't':
+	  s[j] = '\t';
+	  ++i;
+	  break;
+	case 'n':
+	  s[j] = '\n';
+	  ++i;
+	  break;
+	default:
+	  s[j] = t[j];
+	}
+	++i;
+	++j;
+      } else {
+	s[j] = t[i];
+	++i;
+	++j;
+      }
+    }
+    s[j] = '\0';
+  }
+#+END_SRC
