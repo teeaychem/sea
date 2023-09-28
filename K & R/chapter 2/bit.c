@@ -1,19 +1,28 @@
 #include <stdio.h>
 
-void learning();
 void displayBinary(int n, int size);
 double power(double n, double m);
 unsigned getbits(unsigned x, int p, int n);
 unsigned setbits(unsigned x, int p, int n, unsigned y);
 
+int bitcount(unsigned x);
+int fasterBitcount(unsigned x);
+
+void learning();
+void learning2();
+
 int main()
 {
   // learning();
+  // learning2();
 
-  unsigned o = 101;
-  unsigned ones = 255;
-  displayBinary(o, 8);
-  displayBinary(setbits(o,5,1,ones), 8);
+  for (int i = -5; i < 5; ++i)
+    printf("%d:\t%d,\t%d\n", i, bitcount(i), fasterBitcount(i));
+
+  /* unsigned o = 101; */
+  /* unsigned ones = 255; */
+  /* displayBinary(o, 8); */
+  /* displayBinary(setbits(o,5,1,ones), 8); */
 
   return 0;
 }
@@ -35,7 +44,7 @@ void displayBinary(int n, int size)
       putchar('0');
     } else {
       putchar('1');
-      n = n - power(2,size);
+      n -= power(2,size);
     }
   }
   putchar('\n');
@@ -61,6 +70,30 @@ double power(double n, double m)
 unsigned getbits(unsigned x, int p, int n)
 {
   return (x >> (p+1-n)) & ~(~0 << n);
+}
+
+
+/* bitcount: count 1 bits in x */
+
+int bitcount(unsigned x)
+{
+  int b;
+
+  for (b = 0; x != 0; x >>=1)
+    if (x & 01)
+      b++;
+  return b;
+}
+
+int fasterBitcount(unsigned x)
+{
+  int b = 0;
+
+  while (x) {
+    x &= (x - 1);
+    b++;
+  }
+  return b;
 }
 
 /* setbits with the process worked through slowly */
@@ -108,3 +141,11 @@ void learning() {
   printf("---\n");
 
 }
+
+/* some printouts with annotation from learning */
+void learning2() {
+
+  for (int i = 0; i < 64; ++i)
+    displayBinary(i, 8);
+}
+
