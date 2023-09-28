@@ -2,14 +2,18 @@
 
 void displayBinary(int n, int size);
 double power(double n, double m);
+
 unsigned getbits(unsigned x, int p, int n);
 unsigned setbits(unsigned x, int p, int n, unsigned y);
 unsigned replaceBits(unsigned x, int p, int n, unsigned y);
 
 unsigned invert(unsigned x, int p, int n);
 
+unsigned rotright(unsigned x, int n);
+
 int bitcount(unsigned x);
 int fasterBitcount(unsigned x);
+int possibleBitcount();
 
 void learning();
 void learning2();
@@ -124,6 +128,11 @@ int fasterBitcount(unsigned x)
   return b;
 }
 
+int possibleBitcount()
+{
+  return fasterBitcount(~0);
+}
+
 /* setbits with the process worked through slowly */
 unsigned setbits(unsigned x, int p, int n, unsigned y)
 {
@@ -163,8 +172,24 @@ unsigned invert(unsigned x, int p, int n)
 }
 
 
+unsigned rotright(unsigned x, int n)
+{
+  int totalBits = possibleBitcount();
+  int reducedN = n % totalBits;
+  unsigned newLeft = x << (totalBits - reducedN);
+  unsigned newRightMask = ~((~0 >> (totalBits - reducedN)) << (totalBits - reducedN));
+  unsigned newRight = (x >> reducedN) & newRightMask;
+  unsigned newBits = newLeft | newRight;
+
+  return newBits;
+}
+
 /* some printouts with annotation from learning */
 void learning2() {
+
+  int testN = 343;
+  displayBinary(testN,32);
+  displayBinary(rotright(testN,34), 32);
 
   /* for (int i = 0; i < 64; ++i) */
   /*   displayBinary(i, 8); */
