@@ -1926,3 +1926,51 @@ Note, given previous observations ~getChar((n % b) + 1)~ is required in the firs
     reverse(s);
   }
 #+END_SRC
+
+** 3-6
+
+Simple approach is to count down ~w~ whenever a character is added and then add the remianing number of blanks at the end.
+~itob~ is modified as ~itoa~ is just a special case.
+
+#+BEGIN_SRC C
+  void itobW(int n, char s[], int b, int w)
+  {
+    int i, sign;
+    if ((sign = n) < 0)
+      n = ~n;
+    i = 0;
+
+    if (sign < 0) {
+      if ((n % b) < (b - 1)) {
+	s[i++] = getChar((n % b) + 1);
+	--w;
+	(n /= b);
+      } else {
+	s[i++] = '0';
+	--w;
+	(n /= b);
+	++n;
+      }
+    } else {
+      s[i++] = getChar(n % b);
+      --w;
+      (n /= b);
+    }
+
+    while (n > 0) {
+      s[i++] = getChar(n % b);
+      --w;
+      (n /= b);
+    }
+
+    if (sign < 0) {
+      s[i++] = '-';
+      --w;
+    }
+    for (; w > 0; w--, i++) {
+      s[i] = ' ';
+    }
+    s[i] = '\0';
+    reverse(s);
+  }
+#+END_SRC
