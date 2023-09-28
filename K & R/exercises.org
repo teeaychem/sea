@@ -1557,3 +1557,33 @@ This took some learning, so things are worked out in full.
   - Same idea as ~rightmostYMask~ and ~rightmostNofY~.
 - ~replacement~
   - In full: ~~XwithoutP | rightmostNofYatP | leftoverP~.
+
+
+** 2-9
+
+Huh, this is cool.
+
+So, while x, b++, x &= (x - 1).
+So long as there's a 1 bit x will pass a not-false.
+
+This works as for positive and negative integers:
+
+- If odd, then rightmost bit is 1.
+- If even, then rightmost bit is 0.
+- And:
+  - Subtracting 1 requires every bit from (and including) the rightmost 1 bit to be flipped from 0 to 1.
+
+Typed up:
+
+#+BEGIN_SRC C
+  int fasterBitcount(unsigned x)
+  {
+    int b = 0;
+
+    while (x) {
+      x &= (x - 1);
+      b++;
+    }
+    return b;
+  }
+#+END_SRC
