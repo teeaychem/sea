@@ -1854,10 +1854,70 @@ As we still need to be careful of the (bit) size of n, this means ~(n /= 10)~ is
       }
     } else {
       s[i++] = n % 10 + '0';
+      (n /= 10);
     }
 
-    while ((n /= 10) > 0) {
+    while (n > 0) {
       s[i++] = n % 10 + '0';
+      (n /= 10);
+    }
+
+    if (sign < 0)
+      s[i++] = '-';
+    s[i] = '\0';
+    reverse(s);
+  }
+#+END_SRC
+
+Note, the initial version had a mistake where ~(n /= 10)~ was part of the while test and a missing ~(n /= 10)~ from the positive first case.
+This led to an additional division for negative numbers.
+
+** 3-5
+
+~itob~ is basically the same as ~itoa~.
+The only difference is a choice of base and a little more work to figure out the character to print.
+The approach taken works so long as the base is less than 37.
+I'd need to lookup notation for larger bases.
+Though, this should be easy to extend…
+
+Note, given previous observations ~getChar((n % b) + 1)~ is required in the first lookup, as ~getChar((n + 1) % b)~ might make n too large.
+
+#+BEGIN_SRC C
+  int getChar(int n)
+  {
+    if (n < 10) {
+      return n + '0';
+    } else {
+      return (n - 10) + 'a';
+    }
+  }
+#+END_SRC
+
+#+BEGIN_SRC C
+  void itob(int n, char s[], int b)
+  {
+    int i, sign;
+    if ((sign = n) < 0)
+      n = ~n;
+    i = 0;
+
+    if (sign < 0) {
+      if ((n % b) < (b - 1)) {
+	s[i++] = getChar((n % b) + 1);
+	(n /= b);
+      } else {
+	s[i++] = '0';
+	(n /= b);
+	++n;
+      }
+    } else {
+      s[i++] = getChar(n % b);
+      (n /= b);
+    }
+
+    while (n > 0) {
+      s[i++] = getChar(n % b);
+      (n /= b);
     }
 
     if (sign < 0)
