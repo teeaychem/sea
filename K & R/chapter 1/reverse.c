@@ -30,24 +30,38 @@ int main()
   return 0;
 }
 
+/* P.S. The func given in the book in S3.6 tidies this up.
+   It's in the comments below. Notes contrast. */
 int reverse(char s[])
 {
-  int left = 0;
-  int right = 0;
-  char swap;
+  int left = 0; // i
+  int right = 0; // j
+  char swap; // c
 
-  for (right = 0; s[right] != '\0'; right++) {}
+  for (right = 0; s[right] != '\0'; right++) {} // Simple way to get strlen
 
-  --right;
+  --right; // Now right = strlen(s) - 1.
 
-  while (right - left > 0) {
-    swap = s[left];
+  while (right - left > 0) { //  left < right is more elegant
+    swap = s[left]; // same switch procedure
     s[left] = s[right];
     s[right] = swap;
-    ++left;
+    ++left; // updates are placed in the for loop
     --right;
   }
 
   return 1;
 }
 
+/* reverse from S3.6
+void reverse(char s[])
+{
+  int c, i, j;
+
+  for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
+    c = s[i];
+    s[i] = s[j];
+    s[j] = c;
+  }
+}
+*/
