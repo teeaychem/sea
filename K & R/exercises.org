@@ -1661,3 +1661,30 @@ Typed up:
   }
 #+END_SRC
 
+** chapter 3
+
+** 3-1
+
+Keep going until there's no difference between low and high, then check to see whether this is a match…
+
+#+BEGIN_SRC C
+  int altBinsearch(int x, int v[], int n)
+  {
+    int low, high, mid;
+
+    low = 0;
+    high = n - 1;
+
+    while (low <= high) {
+      mid = (low + high) / 2;
+      if (x < v[mid])
+	high = mid - 1;
+      else
+	low = mid + 1;
+
+      if (v[mid] == x)/* found match */
+	return mid;
+    }
+    return -1; /* no match */
+  }
+#+END_SRC
