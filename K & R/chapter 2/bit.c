@@ -4,6 +4,9 @@ void displayBinary(int n, int size);
 double power(double n, double m);
 unsigned getbits(unsigned x, int p, int n);
 unsigned setbits(unsigned x, int p, int n, unsigned y);
+unsigned replaceBits(unsigned x, int p, int n, unsigned y);
+
+unsigned invert(unsigned x, int p, int n);
 
 int bitcount(unsigned x);
 int fasterBitcount(unsigned x);
@@ -14,10 +17,16 @@ void learning2();
 int main()
 {
   // learning();
-  // learning2();
+  learning2();
 
-  for (int i = -5; i < 5; ++i)
-    printf("%d:\t%d,\t%d\n", i, bitcount(i), fasterBitcount(i));
+  /* for (int i = 55; i < 65; ++i) { */
+  /*   // printf("%d:\t%d,\t%d\n", i, bitcount(i), fasterBitcount(i)); */
+  /*   displayBinary(i, 8); */
+  /*   displayBinary(~i << 1 >> 1, 8); */
+  /*   displayBinary(invert(i,3,1), 8); */
+  /*   printf("\n\n"); */
+  /* } */
+
 
   /* unsigned o = 101; */
   /* unsigned ones = 255; */
@@ -33,21 +42,40 @@ int main()
    optionally -1 size resizes bits to fit representation */
 void displayBinary(int n, int size)
 {
-  if (size < 1) {
-    while (power(2,size) < n) {
-      ++size;
+  if (n >= 0) {
+    if (size < 0) {
+      while (power(2,size) < n) {
+	++size;
+      }
     }
-  }
-  --size;
-  for ( ; size >= 0; --size) {
-    if (power(2,size) > n) {
-      putchar('0');
-    } else {
-      putchar('1');
-      n -= power(2,size);
+    --size;
+    for ( ; size >= 0; --size) {
+      if (power(2,size) > n) {
+	putchar('0');
+      } else {
+	putchar('1');
+	n -= power(2,size);
+      }
     }
+    putchar('\n');
   }
-  putchar('\n');
+  if (n < 0) {
+    if (size < 0) {
+      while (-power(2,size) > n) {
+	++size;
+      }
+    }
+    --size;
+    for ( ; size >= 0; --size) {
+      if (-power(2,size) > n) {
+	putchar('0');
+	n += power(2,size);
+      } else {
+	putchar('1');
+      }
+    }
+    putchar('\n');
+  }
 }
 
 /* basic power func */
@@ -111,6 +139,37 @@ unsigned setbits(unsigned x, int p, int n, unsigned y)
   return replacement;
 }
 
+/* like setbits, but instead of the rightmost n of y, take n from y at p
+ key difference is first mask, which now shifts back to position. */
+unsigned replaceBits(unsigned x, int p, int n, unsigned y)
+{
+  unsigned YMask1 = ~((~0 >> n) << p);
+  unsigned YMask2 = ((~0 >> n) << (p - n));
+  unsigned YMask = YMask1 & YMask2;
+  unsigned rightmostNofYatP = YMask & y;
+  unsigned XwithoutP = (x >> p) << p;
+  unsigned XwithNfromY = XwithoutP | rightmostNofYatP;
+  unsigned leftoverPMask = ~(~0 >> (p - n) << (p - n));
+  unsigned leftoverP = x & leftoverPMask;
+  unsigned replacement = XwithNfromY | leftoverP;
+
+  return replacement;
+}
+
+/* to invert n bits from p replace n bits from p with complement */
+unsigned invert(unsigned x, int p, int n)
+{
+  return replaceBits(x, p, n, ~x);
+}
+
+
+/* some printouts with annotation from learning */
+void learning2() {
+
+  /* for (int i = 0; i < 64; ++i) */
+  /*   displayBinary(i, 8); */
+}
+
 /* some printouts with annotation from learning */
 void learning() {
 
@@ -142,10 +201,5 @@ void learning() {
 
 }
 
-/* some printouts with annotation from learning */
-void learning2() {
 
-  for (int i = 0; i < 64; ++i)
-    displayBinary(i, 8);
-}
 
