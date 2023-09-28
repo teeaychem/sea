@@ -3,6 +3,7 @@
 void testITOA(int n);
 
 int getChar(int n);
+void itobW(int n, char s[], int b, int w);
 void itob(int n, char s[], int b);
 void itoa(int n, char s[]);
 void itoaPlus(int n, char s[]);
@@ -22,9 +23,16 @@ int main()
   testITOA(-5);
   testITOA(0);
 
+  int w = 16;
   char itobStr[100];
-  itob(-30, itobStr, 16);
-  printf("Result:\t\t\t%s\n", itobStr);
+  itobW(-55555, itobStr, 16,w);
+
+  printf("\t\t\t\t|");
+  for (int i = 0; i < w; i++) {
+    printf("%d", i % 10);
+  }
+  printf("\n");
+  printf("Result:\t\t\t|%s\n", itobStr);
   return 0;
 }
 
@@ -51,6 +59,48 @@ int getChar(int n)
     } else {
       return (n - 10) + 'a';
     }
+}
+
+/* same as iotab, w specifies width to pad to with blanks  */
+void itobW(int n, char s[], int b, int w)
+{
+  int i, sign;
+  if ((sign = n) < 0)
+    n = ~n;
+  i = 0;
+
+  if (sign < 0) {
+    if ((n % b) < (b - 1)) {
+      s[i++] = getChar((n % b) + 1);
+      --w;
+      (n /= b);
+    } else {
+      s[i++] = '0';
+      --w;
+      (n /= b);
+      ++n;
+    }
+  } else {
+    s[i++] = getChar(n % b);
+    --w;
+    (n /= b);
+  }
+
+  while (n > 0) {
+    s[i++] = getChar(n % b);
+    --w;
+    (n /= b);
+  }
+
+  if (sign < 0) {
+    s[i++] = '-';
+    --w;
+  }
+  for (; w > 0; w--, i++) {
+    s[i] = ' ';
+  }
+  s[i] = '\0';
+  reverse(s);
 }
 
 /* works for b < 37, 0 to 9 then a to z  */
@@ -85,7 +135,6 @@ void itob(int n, char s[], int b)
   s[i] = '\0';
   reverse(s);
 }
-
 
 /* itoa: convert n to characters in s */
 void itoa(int n, char s[])
