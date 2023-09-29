@@ -1995,5 +1995,61 @@ To get the right index keep searching through the line and update some variable 
     }
     return lastIndex;
   }
+#+END_SRC
 
+** 4-2
+
+Basic idea is to treat any exponentiation as another number.
+Use sign to work out whether to up ~val~ or ~power~.
+
+~pw~ is same basic power function from above, renamed as power is already in use.
+
+This could be more elegant.
+As, if ~atoi~ took a positional argument the first calculation of ~e~ could be passed off and then used as an exponent on return.
+
+
+#+BEGIN_SRC C
+  double atof(char s[])
+  {
+    double val, power;
+    int i, sign;
+    int pluse;
+    double e;
+
+    for (i = 0; isspace(s[i]); i++)  /* skip white space */
+      ;
+
+    sign = (s[i] == '-') ? -1 : 1;
+
+    if (s[i] == '+' || s[i] == '-')
+      i++;
+
+    for (val = 0.0; isdigit(s[i]); i++)
+      val = 10.0 * val + (s[i] - '0');
+
+    if (s[i] == '.')
+	     i++;
+
+    for (power = 1.0; isdigit(s[i]); i++) {
+      val = 10.0 * val + (s[i] - '0');
+      power *= 10;
+    }
+
+    if (s[i] == 'e' || s[i] == 'E') {
+      ++i;
+      pluse = (s[i] == '-') ? 0 : 1;
+      if (s[i] == '+' || s[i] == '-')
+	i++;
+      for (e = 0; isdigit(s[i]); i++)
+	e = 10 * e + (s[i] - '0');
+      e = pw(10, e);
+      if (pluse) {
+	val *= e;
+      } else {
+	power *= e;
+      }
+    }
+
+    return sign * val / power;
+  }
 #+END_SRC
