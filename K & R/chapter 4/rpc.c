@@ -187,3 +187,13 @@ void ungetch(int c)   /* push character back on input */
   else
     buf[bufp++] = c;
 }
+
+void ungets(char s[])   /* push string back on input */
+{
+  for (int i = 0; s[i] != '\0'; i++) {
+    if (bufp >= BUFSIZE)
+      printf("ungets: too many characters\n");
+    else
+      buf[bufp++] = s[i];
+  }
+}
