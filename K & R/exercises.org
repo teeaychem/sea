@@ -2086,16 +2086,27 @@ An alterantive is to downcast the doubles to ints:
 
 For negative numbers we only need to make sure any sign is included in the call to ~atoi~.
 
-This is a simple pair of changes to ~getop~.
-
-First, continue on ~+/-~:
+The following small changes do not work:
 
 #+BEGIN_SRC C
   if (!isdigit(c) && c != '.' && c != '-' && c != '+') /* &&s added */
 #+END_SRC
 
-Second, collect +/-
-
 #+BEGIN_SRC C
   if (isdigit(c) || c != '-' || c != '+')    /* ||s added */
 #+END_SRC
+
+The issue is + and - are now seen as parts of an number rather than operators.
+
+To fix this, a small check is made at the end of ~getop~ (but after the possible call to ~ungetch~):
+
+#+BEGIN_SRC C
+  if (s > 0 && !isdigit(s[i - 1])) {
+    return s[i - 1];
+  }
+#+END_SRC
+
+This checks no integer part was found.
+If so, the operator is returned.
+
+With this change we need to ensure ~s~ isn't used for anything else so it's fine to leave the op in ~s~, and it is.
