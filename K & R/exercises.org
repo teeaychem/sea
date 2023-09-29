@@ -2230,3 +2230,81 @@ So…
   push(exp(pop()));
   break;
 #+END_SRC
+
+** 4-6
+
+Handling variables is a bit of a headache (may be by design?)
+
+At the global level there's an array to store the variable values and a pointer to the most recently accessed variable.
+
+Every time a variable is seen it is accessed.
+
+Assigning variables is handled by ~n v =~.
+Where ~n~ is the value and ~v~ is the variable.
+
+~v~ is evaluated, so the variable pointer is updated, and this can be used to set the value in the variable array to ~n~.
+
+This means variables always have a value.
+The could be avoided by setting up a flag for whether a variable has been seen.
+But, that would require an additional array.
+
+Varibles are from ~v~ to ~z~ (so five in total).
+
+To the main switch we add:
+
+#+BEGIN_SRC C
+  case VARIABLE:
+  vp = s[0] - 'v';
+  push(vars[vp]);
+  break;
+#+END_SRC
+
+And:
+
+#+BEGIN_SRC C
+  case '=':
+  pop(); // ignore variable value
+  vars[vp] = pop();
+  push(vars[vp]); // evalute var immediately
+  break;
+#+END_SRC
+
+To ~getop~ we update the ~return c~ check:
+
+#+BEGIN_SRC C
+  if (!isdigit(c) && c != '.' && c != '-' && c != '+') {
+      if ('v' < c && c <= 'z')
+	return VARIABLE;
+      else if (c == 'l')
+	return LAST;
+      return c;      /* not a number */
+   }
+#+END_SRC
+
+~l~ is a special variable, always set to the most recent pop:
+
+#+BEGIN_SRC C
+  double pop(void)
+  {
+    if (sp > 0) {
+      vars[5] = val[--sp];
+      return vars[5];
+    }
+    else {
+      printf("error: stack empty\n");
+      return 0.0;
+    }
+  }
+#+END_SRC
+
+Note, this doesn't update the variable pointer.
+
+This is all fairly hacky.
+And, at the moment it's possible to type in a sequence of varaibles (e.g. ~xvvz~).
+
+This can be fixed, of course.
+Though, rewriting ~getop~ and dispatch seem preferable.
+In particular, it seems ~getop~ should be broken into getting an expression (delimited by however many spaces) and then testing this to see whether it's a number, variable, op, or special command (print, etc).
+Then this can be passed to the relevant dispatch.
+
+Some other time…
