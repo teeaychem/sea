@@ -2053,3 +2053,49 @@ As, if ~atoi~ took a positional argument the first calculation of ~e~ could be p
     return sign * val / power;
   }
 #+END_SRC
+
+** 4-3
+
+*** mod
+
+modulus is an additional case.
+
+Here, we do things 'by hand' as ~%~ requires ~int~ args.
+
+#+BEGIN_SRC C
+  case '%':
+  op2 = pop();
+  op1 = pop();
+  while (op1 > op2) {
+    op1 -= op2;
+  }
+  push(op1);
+  break;
+#+END_SRC
+
+An alterantive is to downcast the doubles to ints:
+
+#+BEGIN_SRC C
+  case '%':
+  op2 = pop();
+  push(((int) pop() % (int) op2));
+  break;
+#+END_SRC
+
+*** negative numbers
+
+For negative numbers we only need to make sure any sign is included in the call to ~atoi~.
+
+This is a simple pair of changes to ~getop~.
+
+First, continue on ~+/-~:
+
+#+BEGIN_SRC C
+  if (!isdigit(c) && c != '.' && c != '-' && c != '+') /* &&s added */
+#+END_SRC
+
+Second, collect +/-
+
+#+BEGIN_SRC C
+  if (isdigit(c) || c != '-' || c != '+')    /* ||s added */
+#+END_SRC
