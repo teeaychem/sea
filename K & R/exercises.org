@@ -1974,3 +1974,26 @@ Simple approach is to count down ~w~ whenever a character is added and then add 
     reverse(s);
   }
 #+END_SRC
+
+** chapter 4
+
+** 4-1
+
+To get the right index keep searching through the line and update some variable (here ~lastIndex~) whenever a match is found.
+
+#+BEGIN_SRC C
+  int rstrindex(char s[], char t[])
+  {
+    int i, j, k;
+    int lastIndex = -1;
+
+    for (i = 0; s[i] != '\0'; i++) {
+      for (j=i, k=0; t[k]!='\0' &s[j]==t[k]; j++, k++)
+	;
+      if (k > 0 &t[k] == '\0')
+	lastIndex = i;
+    }
+    return lastIndex;
+  }
+
+#+END_SRC
