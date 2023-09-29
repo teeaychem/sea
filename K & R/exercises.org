@@ -2308,3 +2308,42 @@ In particular, it seems ~getop~ should be broken into getting an expression (del
 Then this can be passed to the relevant dispatch.
 
 Some other time…
+
+** 4-7
+
+The following basically places ~ungetch~ in a loop over the characters in the string.
+
+#+BEGIN_SRC C
+  void ungets(char s[])   /* push string back on input */
+  {
+    for (int i = 0; s[i] != '\0'; i++) {
+      if (bufp >= BUFSIZE)
+	printf("ungets: too many characters\n");
+      else
+	buf[bufp++] = s[i];
+    }
+  }
+#+END_SRC
+
+This is roughly the same as:
+
+#+BEGIN_SRC C
+  void ungets(char s[])   /* push string back on input */
+  {
+    for (int i = 0; s[i] != '\0'; i++)
+      ungetch(s[i]);
+  }
+#+END_SRC
+
+The only benift as things stand is a custom error message.
+
+The choice requires more context, I think.
+
+If ~ungets~ should mirror the action of ~ungetch~ then calling ~ungetch~ seems preferable, as any change to ~ungetch~ will pass through to ~ungets~.
+
+Otherwise, leave the parallel coincidental.
+
+One consideration is checking whether the length of the string fits before thinking about ~ungetch~.
+One could then avoid partially filling the buffer.
+
+Though, there's no clear motivation to do this, and would amount to more ops.
