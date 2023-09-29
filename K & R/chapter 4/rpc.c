@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>  /* for  atof() */
 #include <ctype.h>
+#include <math.h>
 
 #define MAXOP   100  /* max size of operand or operator */
 #define NUMBER  'n'  /* signal that a number was found */
@@ -29,6 +30,7 @@ int main()
     case NUMBER:
       push(atof(s));
       break;
+
     case '+':
       push(pop() + pop());
       break;
@@ -53,6 +55,11 @@ int main()
 	op1 -= op2;
       push(op1);
       break;
+
+    case 'e':
+      push(exp(pop()));
+      break;
+
     case '\n':
       printf("\t%.8g\n", pop());
       break;
@@ -75,6 +82,7 @@ int main()
     case 'c':
       sp = 0;
       break;
+
     default:
       printf("error: unknown command %s\n", s);
       break;
