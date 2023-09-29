@@ -2093,7 +2093,7 @@ The following small changes do not work:
 #+END_SRC
 
 #+BEGIN_SRC C
-  if (isdigit(c) || c != '-' || c != '+')    /* ||s added */
+  if (isdigit(c) || c == '-' || c == '+')    /* ||s added */
 #+END_SRC
 
 The issue is + and - are now seen as parts of an number rather than operators.
@@ -2110,6 +2110,18 @@ This checks no integer part was found.
 If so, the operator is returned.
 
 With this change we need to ensure ~s~ isn't used for anything else so it's fine to leave the op in ~s~, and it is.
+
+**** fix
+
+The following /works/ but is not right:
+
+#+BEGIN_SRC C
+  if (isdigit(c) || c != '-' || c != '+')    /* ||s added */
+#+END_SRC
+
+The idea here is we've already recorded the first non-b/t character so we'd like to continue if there's a sign or we have a digit.
+
+~c != '-' || c != '+'~ covers any character, so of course we'll continue…
 
 ** 4-4
 
@@ -2178,5 +2190,43 @@ There's no need to clean the stack as there's no option to search through the st
 #+BEGIN_SRC C
   case 'c':
   sp = 0;
+  break;
+#+END_SRC
+
+** 4-5
+
+This is a puzzling exercise.
+Adding library functions is easy (e.g. ~exp~ below).
+
+However, these need to be reduced to a character to be added easily.
+Or, better put, things get complex if an attempt is made to use strings to identify operators.
+
+It's easy to convert the core of ~getop~ to a test on whether or not a string represents a number.
+
+The difficulty is dispatch.
+This is a switch statement, and switch statements require integers.
+So, there are two options:
+
+1. Create an internal character name for each string.
+2. Rewrite the dispatch.
+
+Neither option is compelling.
+(1) seems very bad pratice, but (2) then requires either:
+a. Passing around strings.
+b. An external op string seen by all.
+
+An external op string is very much in the spirit of the text.
+But, we then /still/ need to work in testing string equality.
+
+This all seems a lot for the Ex.
+And, looking at the next ex it seems a switch dispatch is still assumed.
+
+So…
+
+*** exp
+
+#+BEGIN_SRC C
+  case 'e':
+  push(exp(pop()));
   break;
 #+END_SRC
