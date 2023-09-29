@@ -3,11 +3,16 @@
 #include <ctype.h>
 
 #define MAXOP   100  /* max size of operand or operator */
-#define NUMBER  '0'  /* signal that a number was found */
+#define NUMBER  'n'  /* signal that a number was found */
 
 int getop(char []);
 void push(double);
 double pop(void);
+
+#define MAXVAL  100  /* maximum depth of val stack */
+
+int sp = 0;          /* next free stack position */
+double val[MAXVAL];  /* value stack */
 
 /* reverse Polish calculator */
 int main()
@@ -17,6 +22,8 @@ int main()
   char s[MAXOP];
 
   while ((type = getop(s)) != EOF) {
+
+    int swap;
 
     switch (type) {
     case NUMBER:
@@ -39,16 +46,34 @@ int main()
       else
 	printf("error: zero divisor\n");
       break;
-      case '%':
-	op2 = pop();
-	op1 = pop();
-	while (op1 >= op2) {
-	  op1 -= op2;
-	}
-	push(op1);
-	break;
+    case '%':
+      op2 = pop();
+      op1 = pop();
+      while (op1 >= op2)
+	op1 -= op2;
+      push(op1);
+      break;
     case '\n':
       printf("\t%.8g\n", pop());
+      break;
+    case '?': /* print top two elements, though top is popped if \n is required for input to be processed */
+      if (sp == 0)
+	printf("The stack is empty\n");
+      if (sp > 0)
+	printf("Top:\t%g\n", val[sp - 1]);
+      if (sp > 1)
+	printf("Below:\t%g\n", val[sp - 2]);
+      break;
+    case 'd':
+      push(val[sp - 1]);
+      break;
+    case 's':
+      swap = val[sp - 1];
+      val[sp - 1] = val[sp - 2];
+      val[sp - 2] = swap;
+      break;
+    case 'c':
+      sp = 0;
       break;
     default:
       printf("error: unknown command %s\n", s);
@@ -58,10 +83,6 @@ int main()
   return 0;
 }
 
-#define MAXVAL  100  /* maximum depth of val stack */
-
-int sp = 0;          /* next free stack position */
-double val[MAXVAL];  /* value stack */
 
 /* push:  push f onto value stack */
 void push(double f)
@@ -101,12 +122,16 @@ int getop(char s[])
   if (isdigit(c) || c != '-' || c != '+')    /* collect integer part */
     while (isdigit(s[++i] = c = getch()))
       ;
+
   if (c == '.')      /* collect fraction part */
     while (isdigit(s[++i] = c = getch()))
       ;
   s[i] = '\0';
   if (c != EOF)
     ungetch(c);
+  if (s > 0 && !isdigit(s[i - 1])) {
+    return s[i - 1];
+  }
   return NUMBER;
 }
 
