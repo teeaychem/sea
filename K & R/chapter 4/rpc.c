@@ -3,8 +3,10 @@
 #include <ctype.h>
 #include <math.h>
 
-#define MAXOP   100  /* max size of operand or operator */
-#define NUMBER  'n'  /* signal that a number was found */
+#define MAXOP     100  /* max size of operand or operator */
+#define NUMBER    'n'  /* signal that a number was found */
+#define VARIABLE  'v'  /* signal that a variable was found */
+#define LAST      'l'  /* signal that a variable for last pop was found */
 
 int getop(char []);
 void push(double);
@@ -14,6 +16,8 @@ double pop(void);
 
 int sp = 0;          /* next free stack position */
 double val[MAXVAL];  /* value stack */
+double vars[6] = {0,0,0,0,0,0}; /* variable store */
+int vp; /* pointer to current variable */
 
 /* reverse Polish calculator */
 int main()
@@ -27,8 +31,25 @@ int main()
     int swap;
 
     switch (type) {
+
     case NUMBER:
       push(atof(s));
+      break;
+
+    case VARIABLE:
+      vp = s[0] - 'v';
+      printf("variable vp: %d\n", vp);
+      push(vars[vp]);
+      break;
+
+    case LAST:
+      push(vars[5]);
+      break;
+
+    case '=':
+      pop(); // ignore variable value
+      vars[vp] = pop();
+      push(vars[vp]); // evalute var immediately
       break;
 
     case '+':
@@ -104,8 +125,10 @@ void push(double f)
 /* pop:  pop and return top value from stack */
 double pop(void)
 {
-  if (sp > 0)
-    return val[--sp];
+  if (sp > 0) {
+    vars[5] = val[--sp];
+    return vars[5];
+  }
   else {
     printf("error: stack empty\n");
     return 0.0;
@@ -123,8 +146,13 @@ int getop(char s[])
   while ((s[0] = c = getch()) == ' ' || c == '\t')
     ;
   s[1] = '\0'; /* what is the purpose of this? s[i] is always set below */
-  if (!isdigit(c) && c != '.' && c != '-' && c != '+')
+  if (!isdigit(c) && c != '.' && c != '-' && c != '+') {
+    if ('v' < c && c <= 'z')
+      return VARIABLE;
+    else if (c == 'l')
+      return LAST;
     return c;      /* not a number */
+  }
   i = 0;
 
   if (isdigit(c) || c == '-' || c == '+')    /* collect integer part */
