@@ -119,7 +119,7 @@ int getop(char s[])
     return c;      /* not a number */
   i = 0;
 
-  if (isdigit(c) || c != '-' || c != '+')    /* collect integer part */
+  if (isdigit(c) || c == '-' || c == '+')    /* collect integer part */
     while (isdigit(s[++i] = c = getch()))
       ;
 
