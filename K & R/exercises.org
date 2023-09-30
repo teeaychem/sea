@@ -2347,3 +2347,21 @@ One consideration is checking whether the length of the string fits before think
 One could then avoid partially filling the buffer.
 
 Though, there's no clear motivation to do this, and would amount to more ops.
+
+** 4-8
+
+If there's only one possible character of pushback:
+
+1. Set ~BUFSIZE~ to ~1~.
+2. Everything else is optional.
+
+Optionally:
+
+a. The ~bufp~ tests can simply test ~bufp~.
+   The pointer is either ~0~ or ~1~.
+b. ~bufp~ can be set directly to ~0~ or ~1~.
+   For, there's only one possible decrement/increment value.
+c. Replace ~buf~ with a single variable.
+   ~bufp~ is still used to check whether to use the value of the variable, though.
+   (Unless some impossible value for the char is known in advance. So, could use EOF.)
+
