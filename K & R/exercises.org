@@ -2365,3 +2365,45 @@ c. Replace ~buf~ with a single variable.
    ~bufp~ is still used to check whether to use the value of the variable, though.
    (Unless some impossible value for the char is known in advance. So, could use EOF.)
 
+** 4-9
+
+Is the pointer here that EOF is not a character?
+
+So, ~buf~ either needs to allow for ints or some other mechanism needs to be used?
+
+From S1.5.1:
+
+#+BEGIN_QUOTE
+This value is called EOF, for "end of file." We must declare c to be a type big enough to hold any value that getchar returns. We can't use char since c must be big enough to hold EOF in addition to any possible char. Therefore we use int.
+#+END_QUOTE
+
+This seems the way to go, as ~getchar~ returns ~int~, as def'd in B1.
+So, while EOF may be the focus here, the change to ~buf~ ensures anything written to ~buf~ is preserved.
+
+*** the change
+
+#+BEGIN_SRC C
+  int buf[BUFSIZE];    /* buffer for ungetch */
+#+END_SRC
+
+*** alternative
+
+I don't see a good alternative.
+
+If the goal is to allow EOF pushback, then we'd need some way of storing ~BUFSIZE~ EOFs.
+
+We could also ignore EOFs.
+This keep in line with the description of ~getch~ and ~ungetch~ (which originally only mentions characters).
+
+E.g.:
+
+#+BEGIN_SRC C
+  void ungetch(int c)   /* push result of getchar back on input */
+  {
+    if (bufp >= BUFSIZE)
+      printf("ungetch: too many characters\n");
+    else
+      if (c != EOF)
+	buf[bufp++] = c;
+  }
+#+END_SRC
