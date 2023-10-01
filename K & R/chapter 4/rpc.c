@@ -221,6 +221,7 @@ int getopbych(char s[])
   while ((s[0] = c = getch()) == ' ' || c == '\t')
     ;
   s[1] = '\0'; /* what is the purpose of this? s[i] is always set below */
+
   if (!isdigit(c) && c != '.' && c != '-' && c != '+') {
     if ('v' < c && c <= 'z')
       return VARIABLE;
@@ -239,9 +240,12 @@ int getopbych(char s[])
     while (isdigit(s[++i] = c = getch()))
       ;
   s[i] = '\0';
+
+  /* Put char in the buffer */
   if (c != EOF)
     ungetch(c);
-  if (s > 0 && !isdigit(s[i - 1])) {
+
+  if (i > 0 && !isdigit(s[i - 1])) {
     return s[i - 1];
   }
   return NUMBER;
