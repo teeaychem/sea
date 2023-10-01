@@ -26,7 +26,7 @@ int main()
   double op1, op2;
   char s[MAXOP];
 
-  while ((type = getop(s)) != EOF) {
+  while ((type = getop(s)) != ' ') {
 
     int swap;
 
@@ -84,6 +84,7 @@ int main()
     case '\n':
       printf("\t%.8g\n", pop());
       break;
+
     case '?': /* print top two elements, though top is popped if \n is required for input to be processed */
       if (sp == 0)
 	printf("The stack is empty\n");
@@ -105,7 +106,7 @@ int main()
       break;
 
     default:
-      printf("error: unknown command %s\n", s);
+      printf("error: unknown command:%s\n", s);
       break;
     }
   }
@@ -141,6 +142,80 @@ void ungetch(int);
 /* getop:  get next character or numeric operand */
 int getop(char s[])
 {
+  int getopbystr(char s[]);
+  return getopbystr(s);
+
+  /* int getopbych(char s[]); */
+  /* return getopbych(s); */
+}
+
+
+/* outside of function for persistence */
+char line[MAXOP]; /* line buffer */
+int lp = 0; /* line pointer, ++lp is unparsed */
+
+
+int getopbystr(char s[])
+{
+  int getlinealt(char s[], int lim);
+  void copyab(char to[], char from[], int a, int b);
+
+  if (line[lp] == '\0') {
+    getlinealt(line, MAXOP);
+    lp = 0;
+  }
+
+  while (line[lp] == ' ' || line[lp] == '\t')
+    lp++; // point smth after b/t
+
+  if (!isdigit(line[lp]) &&
+      line[lp] != '.' &&
+      line[lp] != '-' &&
+      line[lp] != '+') {
+    copyab(s, line, lp, lp + 1);
+    ++lp;
+    if ('v' < line[lp - 1] && line[lp - 1] <= 'z') {
+      return VARIABLE;
+    }
+    else if (line[lp - 1] == 'l') {
+      return LAST;
+    }
+    return line[lp - 1]; /* not a number */
+  }
+
+  int i = lp + 1; /* always capture next symbol */
+
+  /* if digit, gather */
+  while (isdigit(line[i])) {
+    ++i;
+  }
+
+  /* collect fraction part if present */
+  if (line[i + 1] == '.') {
+    ++i;
+    while (isdigit(line[i + 1]))
+      ++i;
+  }
+
+  /* update s
+   this could be skipped if not digit, but then need to consider lp update
+   and contrast to getopbych */
+  copyab(s, line, lp, i);
+  /* update unprocessed */
+  lp = i;
+
+  if (!isdigit(line[i - 1])) {
+    return line[i - 1];
+  }
+  else {
+    return NUMBER;
+  }
+}
+
+
+/* fill op string by getch and return type info */
+int getopbych(char s[])
+{
   int i, c;
 
   while ((s[0] = c = getch()) == ' ' || c == '\t')
@@ -153,6 +228,7 @@ int getop(char s[])
       return LAST;
     return c;      /* not a number */
   }
+
   i = 0;
 
   if (isdigit(c) || c == '-' || c == '+')    /* collect integer part */
@@ -171,11 +247,12 @@ int getop(char s[])
   return NUMBER;
 }
 
+
 #define BUFSIZE 100
 int buf[BUFSIZE];    /* buffer for ungetch */
-int bufp = 0;         /* next free position in buf */
+int bufp = 0;        /* next free position in buf */
 
-int getch(void)  /* get a (possibly pushed−back) result of getchar */
+int getch(void)  /* get a (possibly pushed-back) result of getchar */
 {
   return (bufp > 0) ? buf[--bufp] : getchar();
 }
@@ -196,4 +273,37 @@ void ungets(char s[])   /* push string back on input */
     else
       buf[bufp++] = s[i];
   }
+}
+
+
+/* For reference
+   getlinealt: get line into s, return length
+   renamed getline from the book, as getline is in some header
+*/
+int getlinealt(char s[], int lim)
+{
+  int c, i;
+  i = 0;
+
+  while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
+    s[i++] = c;
+
+  if (c == '\n')
+    s[i++] = c;
+
+  s[i] = '\0';
+
+  return i;
+}
+
+/* copy: copies 'from' between (inlc.) a and b into 'to'.
+   assumes to is big enough */
+void copyab(char to[], char from[], int a, int b)
+{
+  int i = 0;
+
+  while (a < b) {
+    to[i++] = from[a++];
+  }
+  to[i] = '\0';
 }
