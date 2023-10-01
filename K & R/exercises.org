@@ -2605,3 +2605,35 @@ The /only/ neat thing here is returning the position to write the next character
     }
   }
 #+END_SRC
+
+** 4-13
+
+Here's a simple reverse that temporarily stores each int in the array and then writes everything back in reverse order, using basically the same idea from ~itobrecursive~:
+
+#+BEGIN_SRC C
+  void rreverse(char s[])
+  {
+    int rreversehelper(char s[], int i);
+    rreversehelper(s, 0);
+  }
+
+  int rreversehelper(char s[], int i)
+  {
+    if (s[i] == '\0') {
+      return 0;
+    } else {
+      int store = s[i];
+      i = rreversehelper(s, ++i);
+      s[i] = store;
+      return ++i;
+    }
+  }
+#+END_SRC
+
+This is very simple to set up.
+However, improvements can be made.
+For example, you could first calculate the length of ~s~.
+With this in hand, pass a ~dist~ arg to the helper and use this to find the opposing element as you work through the first half of the array (~dist -= 2~ each time).
+Then, start ~i~ at half the length.
+And, if possible cancel the return.
+This then cuts down on space and time should be about the same (as the lack of return compensates for the initial length task, if any).
