@@ -11,6 +11,8 @@ double power(double n, double m);
 
 void itobrecursive(int n, char s[], int b);
 
+void rreverse(char s[]);
+
 int main()
 {
 
@@ -24,6 +26,7 @@ int main()
   test(9);
   test(10);
   test(11);
+
 }
 
 void test(int n)
@@ -38,6 +41,8 @@ void test(int n)
 
   itobrecursive(n, itoaPlusStr, 10);
   printf("Result from itobrecursive:\t%s\n\n", itoaPlusStr);
+  rreverse(itoaPlusStr);
+  printf("Reversed:\t%s\n\n", itoaPlusStr);
 }
 
 int getChar(int n)
@@ -160,5 +165,23 @@ double power(double n, double m)
       base *= n;
     }
     return base;
+  }
+}
+
+void rreverse(char s[])
+{
+  int rreversehelper(char s[], int i);
+  rreversehelper(s, 0);
+  }
+
+int rreversehelper(char s[], int i)
+{
+  if (s[i] == '\0') {
+    return 0;
+  } else {
+    int store = s[i];
+    i = rreversehelper(s, ++i);
+    s[i] = store;
+    return ++i;
   }
 }
