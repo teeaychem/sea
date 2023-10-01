@@ -2536,3 +2536,11 @@ The clearest difference is increments to ~i~ (used to extend ~sp~) happen after 
 Deciding on the behaviour of ~copyab~ (whether inclusive or exclusive wrt. to ~b~) was also a bit of a headache.
 Some things work nicely inclusive (getting a single char without incrementing), but others not so much (having ~lp~ point to somethiing inparsed).
 
+** 4-11
+
+If there's only one character saved at a time this can be stored in an ~int~ static variable where some non-char int (e.g. EOF) is used to signal the var hasn't been set.
+
+It's super hard to tell whether the exercise is about ~ungetch~ as written, or the idea of ~ungetch~.
+
+I guess the former as there's no clear alternative without a rewrite.
+That is, somehow the issue of reading additional chars needs to be dealt with…
