@@ -2637,3 +2637,51 @@ With this in hand, pass a ~dist~ arg to the helper and use this to find the oppo
 Then, start ~i~ at half the length.
 And, if possible cancel the return.
 This then cuts down on space and time should be about the same (as the lack of return compensates for the initial length task, if any).
+
+
+** 4-14
+
+This is very neat.
+
+#+BEGIN_SRC C
+  #define swp(t,x,y) { t swap = x; x = y; y = swap; }
+#+END_SRC
+
+Though, this isn't ideal if there's a possibiliy ~x~ or ~y~ is called ~swap~.
+
+Something like:
+
+#+BEGIN_SRC C
+  #define swp(t,x,y) { t a = x; t b = y; t swap = a; a = b; b = swap; x = a; y = b; }
+#+END_SRC
+
+Is of no help either, though I'm not sure why.
+Expanded, ~swp(t,a,b)~ should be:
+
+#+BEGIN_SRC C
+  {
+    t a = a;
+    t b = b;
+    t swap = a;
+    a = b;
+    b = swap;
+    a = a;
+    b = b;
+  }
+#+END_SRC
+
+So, one would think equivalent to:
+
+#+BEGIN_SRC C
+  {
+    t swap = a;
+    a = b;
+    b = swap;
+  }
+#+END_SRC
+
+But, this isn't the case, and a swap doesn't happen .
+
+Nor does using ~swp~ as the name of the interal var help, as no warining are given regarding the macro/var ambiguity.
+
+So, macros seems volatile…
