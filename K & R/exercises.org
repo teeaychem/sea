@@ -3,7 +3,6 @@
 #+TITLE: K & R Exercises
 
 * chapter 1
-
 ** 1-1
 
 #+BEGIN_SRC C
@@ -1233,7 +1232,6 @@ As a character I think it's fine to print, even if initial on row.
 
 
 * chapter 2
-
 ** 2-1
 
 The first approach is to use a larger type to calculate the bounds of a smaller type.
@@ -1339,7 +1337,6 @@ As we're effectively testing for a conjunction the var ~ok~ stores what would be
 We then work through each conjunct by an if, such that ~ok~ is set to false/0 unless the condition is satisfied.
 
 Note, nothing depends on the order of the newline/EOF test (apart from a small increase in efficiency if the program isn't terminated at start most times) so these are switched.
-
 
 ** 2-3
 
@@ -1661,7 +1658,8 @@ Typed up:
   }
 #+END_SRC
 
-** chapter 3
+
+* chapter 3
 
 ** 3-1
 
@@ -1975,7 +1973,8 @@ Simple approach is to count down ~w~ whenever a character is added and then add 
   }
 #+END_SRC
 
-** chapter 4
+
+* chapter 4
 
 ** 4-1
 
@@ -2407,3 +2406,133 @@ E.g.:
 	buf[bufp++] = c;
   }
 #+END_SRC
+
+** 4-10
+
+Each line may contain multiple numbers, operators, etc separated by spaces.
+So, using ~getline~ requires splitting the line into parts to be processed by ~getop~.
+
+The basic cycle could be:
+
+1. ~main~ calls ~getop~.
+2. ~getop~ calls ~gettoken~.
+3. ~gettoken~ returns the next token in the string (inlc. EOF).
+4. ~getop~ calls ~parsetoken~ which classifies the token and returns to ~main~.
+
+The issue is tokens.
+Specifically ~atof~, as this taken a string argumnet.
+
+This requirement suggests ~gettoken~ should copy the token to a string rather than retuning indicies of whether the token begins and ends on the line.
+
+Copying things over seems conceptually the way to go.
+For, ~main~ then only needs to know about the next token.
+
+Given how small things are and a desire to keep ~main~ unchanged, the addition of ~gettoken~ and ~parsetoken~ isn't really worth it.
+
+Instead, ~getop~ behaves almost exactly as before, but by walking through the string.
+
+For flexibility, ~getop~ calls either ~getopbystr~ (new) or ~getopbych~ (the old ~getop~):
+
+
+#+BEGIN_SRC C
+  int getop(char s[])
+  {
+    int getopbystr(char s[]);
+    return getopbystr(s);
+
+    /* int getopbych(char s[]); */
+    /* return getopbych(s); */
+  }
+#+END_SRC
+
+The helper function for copying strings is ~copyab~.
+
+#+BEGIN_SRC C
+  /* copy: copies 'from' between (inlc.) a and b into 'to'.
+     assumes to is big enough */
+  void copyab(char to[], char from[], int a, int b)
+  {
+    int i = 0;
+
+    while (a < b) {
+      to[i++] = from[a++];
+    }
+    to[i] = '\0';
+  }
+#+END_SRC
+
+~getopbystr~ uses ~getline~ (from the book) and ~copyab~.
+The only difference is moving the ~lp~ pointer in contrast to getting a character.
+
+Note, ~line~ and ~lp~ are defined outside ~getopbystr~ to ensure these persist when part of the string is evaluated by ~main~.
+
+#+BEGIN_SRC C
+  /* outside of function for persistence */
+char line[MAXOP]; /* line buffer */
+int lp = 0; /* line pointer, ++lp is unparsed */
+
+
+int getopbystr(char s[])
+{
+  int getlinealt(char s[], int lim);
+  void copyab(char to[], char from[], int a, int b);
+
+  if (line[lp] == '\0') {
+    getlinealt(line, MAXOP);
+    lp = 0;
+  }
+
+  while (line[lp] == ' ' || line[lp] == '\t')
+    lp++; // point smth after b/t
+
+  if (!isdigit(line[lp]) &&
+      line[lp] != '.' &&
+      line[lp] != '-' &&
+      line[lp] != '+') {
+    copyab(s, line, lp, lp + 1);
+    ++lp;
+    if ('v' < line[lp - 1] && line[lp - 1] <= 'z') {
+      return VARIABLE;
+    }
+    else if (line[lp - 1] == 'l') {
+      return LAST;
+    }
+    return line[lp - 1]; /* not a number */
+  }
+
+  int i = lp + 1; /* always capture next symbol */
+
+  /* if digit, gather */
+  while (isdigit(line[i])) {
+    ++i;
+  }
+
+  /* collect fraction part if present */
+  if (line[i + 1] == '.') {
+    ++i;
+    while (isdigit(line[i + 1]))
+      ++i;
+  }
+
+  /* update s
+   this could be skipped if not digit, but then need to consider lp update
+   and contrast to getopbych */
+  copyab(s, line, lp, i);
+  /* update unprocessed */
+  lp = i;
+
+  if (!isdigit(line[i - 1])) {
+    return line[i - 1];
+  }
+  else {
+    return NUMBER;
+  }
+}
+#+END_SRC
+
+The headache here was mapping between original transformations to ~s~ and updates to ~lp~.
+The clearest difference is increments to ~i~ (used to extend ~sp~) happen after testing.
+
+Deciding on the behaviour of ~copyab~ (whether inclusive or exclusive wrt. to ~b~) was also a bit of a headache.
+Some things work nicely inclusive (getting a single char without incrementing), but others not so much (having ~lp~ point to somethiing inparsed).
+
