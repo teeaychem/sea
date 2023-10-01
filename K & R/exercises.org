@@ -2544,3 +2544,64 @@ It's super hard to tell whether the exercise is about ~ungetch~ as written, or t
 
 I guess the former as there's no clear alternative without a rewrite.
 That is, somehow the issue of reading additional chars needs to be dealt with…
+
+** 4-12
+
+Decided to do ~itob~ and to handle negation.
+
+Handling different bases is easy.
+
+Handling negation is difficult, as this requires a special case before recursion can get going.
+
+So, ~itobrecursive~ figures out the sign, and then saves the 'last' char to be appended to ~s~ on return.
+
+#+BEGIN_SRC C
+  void itobrecursive(int n, char s[], int b)
+  {
+    int itobrecursiveHelper(int n, char s[], int b, int sign);
+
+    int sign;
+    char saved;
+
+    if ((sign = n) < 0)
+      n = ~n;
+
+    if (sign < 0) {
+      if ((n % b) < (b - 1)) {
+	saved = getChar((n % b) + 1);
+      } else {
+	saved = '0';
+	++n;
+      }
+    } else {
+      saved = getChar(n % b);
+    }
+
+    s[itobrecursiveHelper(n / b, s, b, sign)] = saved;
+  }
+#+END_SRC
+
+~itobrecursiveHelper~ carries sign as this is to be written first.
+The /only/ neat thing here is returning the position to write the next character in ~s~.
+~sign~ can then be used to store this as it's used to write a char and as the base for the return val.
+
+#+BEGIN_SRC C
+  int itobrecursiveHelper(int n, char s[], int b, int sign)
+  {
+    if (n == 0) {
+      if (sign < 0) {
+	s[0] = '-';
+	return 1;
+      } else {
+	return 0;
+      }
+    }
+    else if (n > 0) {
+      sign = itobrecursiveHelper((n / b), s, b, sign);
+      s[sign] = getChar(n % b);
+      return sign + 1;
+    } else {
+      return EOF; /* to ensure a return */
+    }
+  }
+#+END_SRC
