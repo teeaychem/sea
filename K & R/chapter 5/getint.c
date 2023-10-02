@@ -28,7 +28,7 @@ int main()
 /* getint: get next integer from input into *pn */
 int getint(int *pn)
 {
-  int c, sign;
+  int c, d, sign;
 
   while (isspace(c = getch())) /* skip white space */
     ;
@@ -40,8 +40,20 @@ int getint(int *pn)
 
   sign = (c == '-') ? -1 : 1;
 
-  if (c == '+' || c == '-')
-    c = getch();
+
+  if (c == '+' || c == '-') {
+    d = getch();
+    if (!isdigit(d)) {
+      if (d != EOF) {
+	ungetch(d); /* wait to see what comes next */
+      }
+      ungetch(c); /* not an int, return sign */
+      return c;
+    }
+    else {
+      c = d; /* d is the next c */
+    }
+  }
 
   for (*pn = 0; isdigit(c); c = getch())
     *pn = 10 * *pn + (c - '0');
@@ -71,3 +83,4 @@ void ungetch(int c) /* push character back on input */
   else
     buf[bufp++] = c;
 }
+
