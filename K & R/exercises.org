@@ -2733,3 +2733,62 @@ I tripped up here on failing to realise the importance of updating ~c~ to ~d~ fo
     return c;
   }
 #+END_SRC
+
+** 5-2
+
+Reminicent of exercises from ch. 4.
+
+Look for a dot any continue to accumulate, this time dividing the char/int by increasing powers of ten.
+
+The return type remains ~int~ as this is only used to return a non-usable char.
+The float itself is stored at ~*pn~.
+
+#+BEGIN_SRC C
+  int getfloat(float *pn)
+  {
+    int c, d, sign;
+    float power(int n, int m);
+
+    while (isspace(c = getch())) /* skip white space */
+      ;
+
+    if (!isdigit(c) && c != EOF && c != '+' && c != '-') {
+      ungetch(c); /* it is not a number */
+      return 0;
+    }
+
+    sign = (c == '-') ? -1 : 1;
+
+    if (c == '+' || c == '-') {
+      d = getch();
+      if (!isdigit(d)) {
+	if (d != EOF) {
+	  ungetch(d); /* wait to see what comes next */
+	}
+	ungetch(c); /* not an int, return sign */
+	return c;
+      }
+      else {
+	c = d; /* d is the next c */
+      }
+    }
+
+    for (*pn = 0; isdigit(c); c = getch())
+      *pn = 10 * *pn + (c - '0');
+
+    if (c == '.') {
+      c = getch();
+      int dec = 1;
+      for (; isdigit(c); c = getch()) {
+	*pn = (*pn + ((float) (c - '0') / power(10, dec)));
+	++dec;
+      }
+    }
+
+    *pn *= sign;
+
+    if (c != EOF)
+      ungetch(c);
+    return c;
+  }
+#+END_SRC
