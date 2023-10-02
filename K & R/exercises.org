@@ -2685,3 +2685,51 @@ But, this isn't the case, and a swap doesn't happen .
 Nor does using ~swp~ as the name of the interal var help, as no warining are given regarding the macro/var ambiguity.
 
 So, macros seems volatile…
+
+* chapter 5
+
+** 5-1
+
+The change is to add an additional int ~d~ so one steap ahead can be checked.
+
+I tripped up here on failing to realise the importance of updating ~c~ to ~d~ for a while.
+
+#+BEGIN_SRC C
+  /* getint: get next integer from input into *pn */
+  int getint(int *pn)
+  {
+    int c, d, sign;
+
+    while (isspace(c = getch())) /* skip white space */
+      ;
+
+    if (!isdigit(c) && c != EOF && c != '+' && c != '-') {
+      ungetch(c); /* it is not a number */
+      return 0;
+    }
+
+    sign = (c == '-') ? -1 : 1;
+
+    if (c == '+' || c == '-') {
+      d = getch();
+      if (!isdigit(d)) {
+	if (d != EOF) {
+	  ungetch(d); /* wait to see what comes next */
+	}
+	ungetch(c); /* not an int, return sign */
+	return c;
+      }
+      else {
+	c = d; /* d is the next c */
+      }
+    }
+
+    for (*pn = 0; isdigit(c); c = getch())
+      ,*pn = 10 * *pn + (c - '0');
+    ,*pn *= sign;
+
+    if (c != EOF)
+      ungetch(c);
+    return c;
+  }
+#+END_SRC
