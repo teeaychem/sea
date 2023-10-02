@@ -24,7 +24,6 @@ int main()
   return 0;
 }
 
-
 /* getint: get next integer from input into *pn */
 int getint(int *pn)
 {
@@ -39,7 +38,6 @@ int getint(int *pn)
   }
 
   sign = (c == '-') ? -1 : 1;
-
 
   if (c == '+' || c == '-') {
     d = getch();
@@ -64,8 +62,6 @@ int getint(int *pn)
   return c;
 }
 
-
-
 #define BUFSIZE 100
 
 char buf[BUFSIZE]; /* buffer for ungetch */
@@ -83,4 +79,3 @@ void ungetch(int c) /* push character back on input */
   else
     buf[bufp++] = c;
 }
-
