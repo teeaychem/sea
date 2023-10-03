@@ -2815,3 +2815,43 @@ So, the test is incoroprated into the loop.
       ;
   }
 #+END_SRC
+
+** 5-4
+
+The idea is to go to the end of ~s~ and ~t~ and then work backwards.
+
+The length of ~s~ and ~t~ is stored as this is used to place a limit on how far back to go (there's no unique initial char).
+
+If ~t~ is at the end of ~s~ then ~tlen~ will be ~-1~ due to ~tlen~ being decremented on each character match and the need to test the initial (~0~) character.
+
+#+BEGIN_SRC C
+  int strend(char *s, char *t)
+  {
+    int slen = 0;
+    int tlen = 0;
+
+    while (*s != '\0') { /* find the end of s */
+      s++;
+      slen++;
+    }
+
+    while (*t != '\0') { /* find the end of s */
+      t++;
+      tlen++;
+    }
+
+    while (*s == *t && tlen >= 0 && slen >= 0) {
+      s--;
+      t--;
+      slen--;
+      tlen--;
+    }
+
+    if (tlen == -1) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+#+END_SRC
