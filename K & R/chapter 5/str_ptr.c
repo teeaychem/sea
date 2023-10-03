@@ -5,12 +5,17 @@ int main(void)
   void test_strcat_ptr(void);
   void test_strcat_book(void);
   void test_strend(void);
+  void test_whu(char *s, int n);
 
-  test_strcat_ptr();
+  /* test_strcat_ptr(); */
 
-  test_strcat_book();
+  /* test_strcat_book(); */
 
-  test_strend();
+  /* test_strend(); */
+
+  test_whu("this is a very long string", 5);
+  test_whu("short", 10);
+  test_whu("bepop bepop bepop", 4);
 
   return 0;
 }
@@ -123,4 +128,48 @@ int strend(char *s, char *t)
   } else {
     return 0;
   }
+}
+
+void test_whu(char *s, int n)
+{
+  int whu(char *from, char *to, int n);
+
+  char to[n];
+
+  printf("Testing: whu\n");
+
+  printf("Initial string: %s\n", s);
+  printf("Size of to: %d\n", n);
+
+  int i = whu(s, to, (n - 1));
+
+  printf("Result of whu:\n\tto:\t%s\n\ti:\t%d\n", to, i);
+
+  printf("Reconstructed:\n\t\t");
+  for (int j = i; j < (i + n - 1) && to[j % (n - 1)] != '\0'; j++) {
+    printf("%c", to[j % (n - 1)]);
+  }
+  printf("\n");
+}
+
+/* func to test a pointer arithmetic idea
+ basically, this stores the last n chars of from in to
+ and returns the index of where to start reading to from
+ in order to reconstruct */
+int whu(char *from, char *to, int n)
+{
+  int i = 0;
+  while (*from != '\0') {
+    (*(to + (i % n)) = *from);
+    i++;
+    from++;
+    /* for (int i = 0; i < n; i++) */
+    /*   printf("%c", to[i]); */
+    /* printf("\n"); */
+  }
+  *(to + n) = '\0';
+  if (i > n)
+    return i % n;
+  else
+    return 0;
 }
