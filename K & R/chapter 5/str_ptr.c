@@ -6,6 +6,8 @@ int main(void)
   void test_strcat_book(void);
   void test_strend(void);
   void test_whu(char *s, int n);
+  void test_strncpy_ptr();
+  void test_strncmp_ptr();
 
   /* test_strcat_ptr(); */
 
@@ -13,9 +15,13 @@ int main(void)
 
   /* test_strend(); */
 
-  test_whu("this is a very long string", 5);
-  test_whu("short", 10);
-  test_whu("bepop bepop bepop", 4);
+  /* test_whu("this is a very long string", 5); */
+  /* test_whu("short", 10); */
+  /* test_whu("bepop bepop bepop", 4); */
+
+  /* test_strncpy_ptr(); */
+
+  test_strncmp_ptr();
 
   return 0;
 }
@@ -172,4 +178,72 @@ int whu(char *from, char *to, int n)
     return i % n;
   else
     return 0;
+}
+
+/*
+  at most n chars
+  strncmp
+*/
+
+void test_strncpy_ptr()
+{
+  printf("\nTesting: strncpy\n");
+  void strncpy_ptr(char *s, char *t, int n);
+
+  int n = 5;
+  // int n = 20;
+  char s[n]; // ensure s is big enough
+  char t[] = "Hello, world";
+  //char t[] = "Hi!";
+
+  strncpy_ptr(s, t, n);
+
+  printf("\tStrings:\n"
+	 "\ts:\t%s\n"
+	 "\tt:\t%s\n", s, t);
+}
+
+/* copy at most n chars of t to s */
+void strncpy_ptr(char *s, char *t, int n)
+{
+  while ((*s++ = *t++) != '\0' && --n > 0)
+    ;
+}
+
+/* concatenate n chars of t to end of s  */
+void strncat_ptr(char *s, char *t, int n)
+{
+  while (*s != '\0') /* find the end of s */
+    s++;
+
+  while ((*s++ = *t++) != '\0' && --n > 0) /* copy n of t */
+    ;
+}
+
+void test_strncmp_ptr()
+{
+  int strncmp_ptr(char *s, char *t, int n);
+  int n;
+  char s[] = "abcde";
+  char t[] = "abcdf";
+
+  printf("\tStrings:\n"
+	 "\ts:\t%s\n"
+	 "\tt:\t%s\n", s, t);
+
+  n = 4;
+  printf("What's the lexicographic order between s and t given %d chars? %d\n",
+	 n, strncmp_ptr(s, t, n));
+  n = 5;
+  printf("What's the lexicographic order between s and t given %d chars? %d\n",
+	 n, strncmp_ptr(s, t, n));
+}
+
+/* negative, zero, or positive for s < t, s == t, s > t */
+int strncmp_ptr(char *s, char *t, int n)
+{
+  for ( ; *s == *t && --n > 0; s++, t++)
+    if (*s == '\0')
+      return 0;
+  return *s - *t;
 }
