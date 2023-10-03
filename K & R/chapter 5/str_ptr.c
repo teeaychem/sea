@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include<string.h>
 
 int main(void)
 {
@@ -8,6 +9,7 @@ int main(void)
   void test_whu(char *s, int n);
   void test_strncpy_ptr();
   void test_strncmp_ptr();
+  void test_reverse_ptr();
 
   /* test_strcat_ptr(); */
 
@@ -21,7 +23,9 @@ int main(void)
 
   /* test_strncpy_ptr(); */
 
-  test_strncmp_ptr();
+  /* test_strncmp_ptr(); */
+
+  test_reverse_ptr();
 
   return 0;
 }
@@ -246,4 +250,45 @@ int strncmp_ptr(char *s, char *t, int n)
     if (*s == '\0')
       return 0;
   return *s - *t;
+}
+
+/* reverse: reverse string s in place */
+void reverse_arr(char s[])
+{
+  int c, i, j;
+
+  for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
+    c = s[i];
+    s[i] = s[j];
+    s[j] = c;
+  }
+}
+
+
+void test_reverse_ptr()
+{
+  void reverse_ptr(char *s);
+
+  char s[] = "Hello";
+
+  printf("\tString:\n"
+	 "\ts:\t%s\n", s);
+
+  reverse_ptr(s);
+
+  printf("Reversed:\n"
+	 "\tt:\t%s\n", s);
+}
+
+
+/* reverse: reverse string s in place */
+void reverse_ptr(char *s)
+{
+  int c, i, j;
+
+  for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
+    c = *(s + i);
+    *(s + i) = *(s + j);
+    *(s + j) = c;
+  }
 }
