@@ -2914,3 +2914,43 @@ The same mod…
     return *s - *t;
   }
 #+END_SRC
+
+** 5-6
+
+I'll pass on most of the options for now.
+
+The issue is none of this seems enlightening.
+
+I picked ~reverse~ thinking this might be an interesting case, but here's a minimal change:
+
+#+BEGIN_SRC C
+  void reverse_ptr(char *s)
+  {
+    int c, i, j;
+
+    for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
+      c = s[i];
+      s[i] = s[j];
+      s[j] = c;
+    }
+  }
+#+END_SRC
+
+Given the relation between pointers and arrays, nothing really needs to be altered other than the argument.
+
+Indeed, given the way swap happens there's really no interest in doing anything else.
+
+At best, it might be useful to keep the deref notation throughout the function, like:
+
+#+BEGIN_SRC C
+  void reverse_ptr(char *s)
+  {
+    int c, i, j;
+
+    for (i = 0, j = strlen(s)-1; i < j; i++, j--) {
+      c = *(s + i);
+      *(s + i) = *(s + j);
+      *(s + j) = c;
+    }
+  }
+#+END_SRC
