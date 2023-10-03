@@ -2855,3 +2855,62 @@ If ~t~ is at the end of ~s~ then ~tlen~ will be ~-1~ due to ~tlen~ being decreme
   }
 
 #+END_SRC
+
+** 5-5
+
+*** strncpy
+
+Straightforward modification of ~strcpy~.
+
+It's not clear to me whether the test remains important, or whether ~\0~ is defined to be ~0~.
+
+#+BEGIN_SRC C
+  /* copy at most n chars of t to s */
+  void strncpy_ptr(char *s, char *t, int n)
+  {
+    while ((*s++ = *t++) != '\0' && --n > 0)
+      ;
+  }
+#+END_SRC
+
+*** strncat
+
+Same as ~strncat~ from before, but with the same copy as ~s~.
+
+#+BEGIN_SRC C
+  /* concatenate n chars of t to end of s  */
+  void strncat_ptr(char *s, char *t, int n)
+  {
+    while (*s != '\0') /* find the end of s */
+      s++;
+
+    while ((*s++ = *t++) != '\0' && --n > 0) /* copy n of t */
+      ;
+  }
+#+END_SRC
+
+The following should work equally well:
+
+#+BEGIN_SRC C
+  void strncat_ptr(char *s, char *t, int n)
+  {
+    while (*s != '\0')
+      s++;
+
+    strncpy_ptr(s, t, n);
+  }
+#+END_SRC
+
+*** strncmp
+
+The same mod…
+
+#+BEGIN_SRC C
+  int strncmp_ptr(char *s, char *t, int n)
+  {
+    for ( ; *s == *t && --n > 0; s++, t++)
+      if (*s == '\0')
+	return 0;
+    return *s - *t;
+  }
+#+END_SRC
