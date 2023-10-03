@@ -184,11 +184,6 @@ int whu(char *from, char *to, int n)
     return 0;
 }
 
-/*
-  at most n chars
-  strncmp
-*/
-
 void test_strncpy_ptr()
 {
   printf("\nTesting: strncpy\n");
