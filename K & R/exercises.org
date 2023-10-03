@@ -2792,3 +2792,26 @@ The float itself is stored at ~*pn~.
     return c;
   }
 #+END_SRC
+
+** 5-3
+
+A direct modification of ~strcat_book~.
+
+The contrasting ~while~ loops are kind of interesting.
+
+For the first we want ~*s~ to point to the end of ~s~, before ~\0~.
+So, incrementing ~s~ happens only after the test is passed.
+
+For the second, it doesn't matter where ~*s~ or ~*t~ point to when everything is over and it is important ~\0~ is copied over.
+So, the test is incoroprated into the loop.
+
+#+BEGIN_SRC C
+  void strcat_ptr(char *s, char *t)
+  {
+    while (*s != '\0') /* find the end of s */
+      s++;
+
+    while ((*s++ = *t++) != '\0') /* copy t */
+      ;
+  }
+#+END_SRC
