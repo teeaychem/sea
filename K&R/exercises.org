@@ -1,6 +1,6 @@
 #+STARTUP: Overview
 #+PROPERTY: header-args :noweb eval :results output
-#+TITLE: K & R Exercises
+#+TITLE: K&R Exercises
 
 * chapter 1
 ** 1-1
@@ -2685,6 +2685,7 @@ But, this isn't the case, and a swap doesn't happen .
 Nor does using ~swp~ as the name of the interal var help, as no warining are given regarding the macro/var ambiguity.
 
 So, macros seems volatile…
+
 
 * chapter 5
 
