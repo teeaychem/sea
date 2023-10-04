@@ -2954,3 +2954,71 @@ At best, it might be useful to keep the deref notation throughout the function, 
     }
   }
 #+END_SRC
+
+** 5-7
+
+~ALLOCSIZE~ is defined outside of any func, similar to ~alloc~.
+This is so both ~main~ and ~readlines~ can see the size of the buffer allocated for storing lines.
+
+Inside ~main~ a ~char~ array ~buf~ is created parallel to ~allocbuf~.
+
+~readlines~ is then modified to take ~buf~ as an argument.
+
+There's no interaction with ~buf~ outside of ~readlines~.
+So, ~bufp~, the counterpart to ~allocp~ can be kept internal to ~readlines~.
+
+The rest is commented:
+
+#+BEGIN_SRC C
+  int readlines_main(char *lineptr[], int maxlines, char buf[])
+  {
+    int getlinealt(char *, int);
+
+    char *bufp = buf; /* buf only updated within readlines */
+    int len;
+    char line[MAXLEN];
+    int nlines = 0;
+
+   while ((len = getlinealt(line, MAXLEN)) > 0)
+     /* replicate free mem test inline */
+     if (nlines >= maxlines || (buf + ALLOCSIZE - bufp < len))
+       return -1;
+     else {
+       line[len - 1] = '\0'; /* delete newline */
+       strcpy(bufp, line);
+       lineptr[nlines++] = bufp; /* store ptr to line */
+       bufp += len; /* update bufp past stored line */
+     }
+   return nlines;
+  }
+#+END_SRC
+
+Note, it's important to update ~bufp~ only after ~bufp~ when pointing to the start of the line has been stored.
+
+So, the only alterantive to the above is:
+
+#+BEGIN_SRC C
+  int readlines_main(char *lineptr[], int maxlines, char buf[])
+  {
+    int getlinealt(char *, int);
+
+    char *bufp = buf; /* buf only updated within readlines */
+    int len;
+    char line[MAXLEN];
+    int nlines = 0;
+
+   while ((len = getlinealt(line, MAXLEN)) > 0)
+     /* replicate free mem test inline */
+     if (nlines >= maxlines || (buf + ALLOCSIZE - bufp < len))
+       return -1;
+     else {
+       line[len - 1] = '\0'; /* delete newline */
+       lineptr[nlines++] = bufp; /* store ptr to line */
+       strcpy(bufp, line);
+       bufp += len; /* update bufp past stored line */
+     }
+   return nlines;
+  }
+#+END_SRC
+
+Though, this alternative raise the possibility of ~strcpy~ returining an incremented ~bufp~.
