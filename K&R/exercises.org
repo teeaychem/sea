@@ -1660,7 +1660,6 @@ Typed up:
 
 
 * chapter 3
-
 ** 3-1
 
 Keep going until there's no difference between low and high, then check to see whether this is a match…
@@ -1975,7 +1974,6 @@ Simple approach is to count down ~w~ whenever a character is added and then add 
 
 
 * chapter 4
-
 ** 4-1
 
 To get the right index keep searching through the line and update some variable (here ~lastIndex~) whenever a match is found.
@@ -2545,6 +2543,59 @@ It's super hard to tell whether the exercise is about ~ungetch~ as written, or t
 I guess the former as there's no clear alternative without a rewrite.
 That is, somehow the issue of reading additional chars needs to be dealt with…
 
+The important thing here is the preceding paragraph.
+By using ~static~ variables are in existence regardless of whether or not the function is activated.
+
+So, in short, calls to ~getch~ and ~ungetch~ are inlined, and statics are added for the buffer and associated pointer.
+Note, buffersize is a constant as variable statics aren't allowed – storage for a static is only allocated once.
+
+#+BEGIN_SRC C
+  /* fill op string by getch and return type info using statics */
+int getopbych_static(char s[])
+{
+  int i, c;
+  const int CH_BUFSIZE = 100;
+  static int ch_buf[CH_BUFSIZE]; /* buffer for ungetch */
+  static int ch_bufp = 0; /* next free position in buf */
+
+  while ((s[0] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())) == ' ' || c == '\t')
+    ;
+  s[1] = '\0'; /* what is the purpose of this? s[i] is always set below */
+
+  if (!isdigit(c) && c != '.' && c != '-' && c != '+') {
+    if ('v' < c && c <= 'z')
+      return VARIABLE;
+    else if (c == 'l')
+      return LAST;
+    return c;      /* not a number */
+  }
+
+  i = 0;
+
+  if (isdigit(c) || c == '-' || c == '+')    /* collect integer part */
+    while (isdigit(s[++i] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())))
+      ;
+
+  if (c == '.')      /* collect fraction part */
+    while (isdigit(s[++i] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())))
+      ;
+  s[i] = '\0';
+
+  /* Put char in the buffer */
+  if (c != EOF) {
+    if (ch_bufp >= CH_BUFSIZE)
+    printf("ungetch: too many characters\n");
+  else
+    ch_buf[ch_bufp++] = c;
+  }
+
+  if (i > 0 && !isdigit(s[i - 1])) {
+    return s[i - 1];
+  }
+  return NUMBER;
+}
+#+END_SRC
+
 ** 4-12
 
 Decided to do ~itob~ and to handle negation.
@@ -2638,7 +2689,6 @@ Then, start ~i~ at half the length.
 And, if possible cancel the return.
 This then cuts down on space and time should be about the same (as the lack of return compensates for the initial length task, if any).
 
-
 ** 4-14
 
 This is very neat.
@@ -2688,7 +2738,6 @@ So, macros seems volatile…
 
 
 * chapter 5
-
 ** 5-1
 
 The change is to add an additional int ~d~ so one steap ahead can be checked.
