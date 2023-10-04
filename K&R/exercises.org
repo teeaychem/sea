@@ -3122,3 +3122,50 @@ Though, strictly only one of these needs to be set.
     }
   }
 #+END_SRC
+
+** 5-9
+
+Fairly straightforward.
+The pattern is ~a[i]~ to ~*(a + i)~.
+So, ~a[i][j]~ -> ~(*(a + i))[j]~ -> ~*((*(a + i)) + j)~ = ~*(*(a + i) + j)~.
+
+With this in hand we have:
+
+#+BEGIN_SRC C
+  int day_of_year_ptr(int year, int month, int day)
+  {
+    int i, leap;
+    if (month < 1 || 12 < month)
+      return -1;
+
+    leap = year%4 == 0 &year%100 != 0 || year%400 == 0;
+
+    if (day < 1 || *(*(daytab + leap) + month) < day)
+      return -1;
+
+    for (i = 1; i < month; i++)
+      day += *(*(daytab + leap) + i);
+    return day;
+  }
+#+END_SRC
+
+And:
+
+#+BEGIN_SRC C
+  void month_day_ptr(int year, int yearday, int *pmonth, int *pday)
+  {
+    int i, leap;
+
+    leap = year%4 == 0 &year%100 != 0 || year%400 == 0;
+
+    if ((leap && yearday > 366) || (!leap && yearday > 365)) {
+      *pmonth = -1;
+      *pday = -1;
+    } else {
+      for (i = 1; yearday > *(*(daytab +leap) + i); i++)
+	yearday -= *(*(daytab +leap) + i);
+      *pmonth = i;
+      *pday = yearday;
+    }
+  }
+#+END_SRC
