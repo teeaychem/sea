@@ -3022,3 +3022,53 @@ So, the only alterantive to the above is:
 #+END_SRC
 
 Though, this alternative raise the possibility of ~strcpy~ returining an incremented ~bufp~.
+
+** 5-8
+
+For both functions ~-1~ is used to indicate an error, as any error free value must be positive.
+
+~day_of_year~ first checks the month is possible as this does not require figuring out whether it's a leap year.
+
+Then, when whether the year is a leap year has been figured out a check on whether the day is a possible day given the month is checked.
+
+#+BEGIN_SRC C
+  int day_of_year(int year, int month, int day)
+  {
+    int i, leap;
+    if (month < 1 || 12 < month)
+      return -1;
+
+    leap = year%4 == 0 &year%100 != 0 || year%400 == 0;
+
+    if (day < 1 || daytab[leap][month] < day)
+      return -1;
+
+    for (i = 1; i < month; i++)
+      day += daytab[leap][i];
+    return day;
+  }
+#+END_SRC
+
+~month_day~ figures out whether the year is a possibe leap year and then checks whether the total number of days is possible.
+
+As ~month_day~ doesn't have a return value the error is written to ~*pmonth~ and ~*pday~.
+Though, strictly only one of these needs to be set.
+
+#+BEGIN_SRC C
+  void month_day(int year, int yearday, int *pmonth, int *pday)
+  {
+    int i, leap;
+
+    leap = year%4 == 0 &year%100 != 0 || year%400 == 0;
+
+    if ((leap && yearday > 366) || (!leap && yearday > 365)) {
+      *pmonth = -1;
+      *pday = -1;
+    } else {
+      for (i = 1; yearday > daytab[leap][i]; i++)
+	yearday -= daytab[leap][i];
+      *pmonth = i;
+      *pday = yearday;
+    }
+  }
+#+END_SRC
