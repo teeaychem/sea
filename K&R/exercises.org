@@ -3169,3 +3169,78 @@ And:
     }
   }
 #+END_SRC
+
+** 5-10
+
+This amounts to modifying the earlier reverse polish notation calc to take input from the command line rather than a line.
+
+** 5-13
+
+
+*** misread - last n chars
+
+Misread this to be about the last /n/ characters.
+And, an earlier function written for interest fits well for this purpose.
+
+~whu~ walks through a string storing the last ~n~ chars in an array.
+
+#+BEGIN_SRC C
+  /* func to test a pointer arithmetic idea
+   basically, this stores the last n chars of from in to
+   and returns the index of where to start reading to from
+   in order to reconstruct */
+  int whu(char *from, char *to, int n)
+  {
+    int i = 0;
+    while (*from != '\0') {
+      (*(to + (i++ % n)) = *from);
+      from++;
+    }
+    *(to + i++) = '\0';
+    if (i > n)
+      return i % n;
+    else
+      return 0;
+  }
+
+#+END_SRC
+
+As the characters are stored using ~mod~, reconstruction requires starting from ~i~ and returing to the start of the array when required.
+
+~tail~ is fragile as written, and assumes after ~-n~ is a number.
+~atoi~ is from ~stdlib~.
+
+After (maybe) updating ~n~ the last ~n~ digits of the string given as an argument are recovered.
+
+#+BEGIN_SRC C
+  int tail(int argc, char *argv[])
+  {
+    int c;
+    int n = 10;
+
+    while (--argc > 0 && (*++argv)[0] == '-') {
+      c = *++argv[0]; /* just check the first char after - */
+      switch (c) {
+      case 'n':
+	n = atoi(*++argv) + 1; /* next arg specifies number */
+	--argc;
+	break;
+      default:
+	printf("illegal option %c\n", c);
+	break;
+      }
+    }
+
+    char to[n];
+    int whu(char *from, char *to, int n);
+
+    int i = whu(argv[0], to, n);
+
+    for (int j = i; j < (i + n - 1) && to[j % n] != '\0'; j++) {
+      printf("%c", to[j % n]);
+    }
+    printf("\n");
+
+    return 0;
+  }
+#+END_SRC
