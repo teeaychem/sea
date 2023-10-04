@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include<string.h>
+#include <string.h>
+#include <stdlib.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
   void test_strcat_ptr(void);
   void test_strcat_book(void);
@@ -10,6 +11,7 @@ int main(void)
   void test_strncpy_ptr();
   void test_strncmp_ptr();
   void test_reverse_ptr();
+  int tail(int argc, char *argv[]);
 
   /* test_strcat_ptr(); */
 
@@ -25,7 +27,9 @@ int main(void)
 
   /* test_strncmp_ptr(); */
 
-  test_reverse_ptr();
+  /* test_reverse_ptr(); */
+
+  tail(argc, argv);
 
   return 0;
 }
@@ -162,6 +166,37 @@ void test_whu(char *s, int n)
   printf("\n");
 }
 
+int tail(int argc, char *argv[])
+{
+  int c;
+  int n = 10;
+
+  while (--argc > 0 && (*++argv)[0] == '-') {
+    c = *++argv[0]; /* just check the first char after - */
+    switch (c) {
+    case 'n':
+      n = atoi(*++argv) + 1; /* next arg specifies number */
+      --argc;
+      break;
+    default:
+      printf("illegal option %c\n", c);
+      break;
+    }
+  }
+
+  char to[n];
+  int whu(char *from, char *to, int n);
+
+  int i = whu(argv[0], to, n);
+
+  for (int j = i; j < (i + n - 1) && to[j % n] != '\0'; j++) {
+    printf("%c", to[j % n]);
+  }
+  printf("\n");
+
+  return 0;
+}
+
 /* func to test a pointer arithmetic idea
  basically, this stores the last n chars of from in to
  and returns the index of where to start reading to from
@@ -170,14 +205,13 @@ int whu(char *from, char *to, int n)
 {
   int i = 0;
   while (*from != '\0') {
-    (*(to + (i % n)) = *from);
-    i++;
+    (*(to + (i++ % n)) = *from);
     from++;
     /* for (int i = 0; i < n; i++) */
     /*   printf("%c", to[i]); */
     /* printf("\n"); */
   }
-  *(to + n) = '\0';
+  *(to + i++) = '\0';
   if (i > n)
     return i % n;
   else
