@@ -113,7 +113,6 @@ int main()
   return 0;
 }
 
-
 /* push:  push f onto value stack */
 void push(double f)
 {
@@ -142,11 +141,14 @@ void ungetch(int);
 /* getop:  get next character or numeric operand */
 int getop(char s[])
 {
-  int getopbystr(char s[]);
-  return getopbystr(s);
+  /* int getopbystr(char s[]); */
+  /* return getopbystr(s); */
 
   /* int getopbych(char s[]); */
   /* return getopbych(s); */
+
+  int getopbych_static(char s[]);
+  return getopbych_static(s);
 }
 
 
@@ -212,6 +214,50 @@ int getopbystr(char s[])
   }
 }
 
+/* fill op string by getch and return type info using statics */
+int getopbych_static(char s[])
+{
+  int i, c;
+  const int CH_BUFSIZE = 100;
+  static int ch_buf[CH_BUFSIZE]; /* buffer for ungetch */
+  static int ch_bufp = 0; /* next free position in buf */
+
+  while ((s[0] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())) == ' ' || c == '\t')
+    ;
+  s[1] = '\0'; /* what is the purpose of this? s[i] is always set below */
+
+  if (!isdigit(c) && c != '.' && c != '-' && c != '+') {
+    if ('v' < c && c <= 'z')
+      return VARIABLE;
+    else if (c == 'l')
+      return LAST;
+    return c;      /* not a number */
+  }
+
+  i = 0;
+
+  if (isdigit(c) || c == '-' || c == '+')    /* collect integer part */
+    while (isdigit(s[++i] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())))
+      ;
+
+  if (c == '.')      /* collect fraction part */
+    while (isdigit(s[++i] = c = ((ch_bufp > 0) ? ch_buf[--ch_bufp] : getchar())))
+      ;
+  s[i] = '\0';
+
+  /* Put char in the buffer */
+  if (c != EOF) {
+    if (ch_bufp >= CH_BUFSIZE)
+    printf("ungetch: too many characters\n");
+  else
+    ch_buf[ch_bufp++] = c;
+  }
+
+  if (i > 0 && !isdigit(s[i - 1])) {
+    return s[i - 1];
+  }
+  return NUMBER;
+}
 
 /* fill op string by getch and return type info */
 int getopbych(char s[])
@@ -250,7 +296,6 @@ int getopbych(char s[])
   }
   return NUMBER;
 }
-
 
 #define BUFSIZE 100
 int buf[BUFSIZE];    /* buffer for ungetch */
