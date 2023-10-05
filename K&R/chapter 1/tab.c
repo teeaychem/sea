@@ -40,7 +40,6 @@ void detab(void)
 
 void entab(void)
 {
-
   int spacesSeen = 0;
   int afterTab = 0;
   char c;
@@ -59,12 +58,10 @@ void entab(void)
       while (spacesSeen > 0) {
 	putchar(' ');
 	--spacesSeen;
-	++afterTab;
+	afterTab = ((afterTab + 1) % STOPDIST);
       }
       putchar(c);
-      ++afterTab;
-
-      afterTab = afterTab % STOPDIST;
+      afterTab = ((afterTab + 1) % STOPDIST);
     }
   }
 }

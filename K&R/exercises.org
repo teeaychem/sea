@@ -1056,36 +1056,33 @@ Then, add the char and update distance after a tabstop.
 With spaces, keep a count and when a tabstop is past, add a tab and reset the counters.
 
 #+BEGIN_SRC C
-void entab(void)
-{
+  void entab(void)
+  {
+    int spacesSeen = 0;
+    int afterTab = 0;
+    char c;
 
-  int spacesSeen = 0;
-  int afterTab = 0;
-  char c;
+    while ((c = getchar()) != EOF) {
 
-  while ((c = getchar()) != EOF) {
-
-    if (c == ' ') {
-      ++spacesSeen;
-      if ((afterTab + spacesSeen) == STOPDIST) {
-	putchar('\t');
-	afterTab = 0;
-	spacesSeen = 0;
+      if (c == ' ') {
+	++spacesSeen;
+	if ((afterTab + spacesSeen) == STOPDIST) {
+	  putchar('\t');
+	  afterTab = 0;
+	  spacesSeen = 0;
+	}
       }
-    }
-    else {
-      while (spacesSeen > 0) {
-	putchar(' ');
-	--spacesSeen;
-	++afterTab;
+      else {
+	while (spacesSeen > 0) {
+	  putchar(' ');
+	  --spacesSeen;
+	  afterTab = ((afterTab + 1) % STOPDIST);
+	}
+	putchar(c);
+	afterTab = ((afterTab + 1) % STOPDIST);
       }
-      putchar(c);
-      ++afterTab;
-
-      afterTab = afterTab % STOPDIST;
     }
   }
-}
 #+END_SRC
 
 This was kind of difficult, if only due to thinking about tab stops and the importance of keeping track of both spaces /and/ characters.
