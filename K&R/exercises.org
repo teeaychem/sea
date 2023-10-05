@@ -3172,7 +3172,88 @@ And:
 
 ** 5-10
 
-This amounts to modifying the earlier reverse polish notation calc to take input from the command line rather than a line.
+At a high level, this is the calculator from before but revised to take arguments over reading from a string.
+
+In a little more detail, working with commands makes this a fair bit easier as there's no need to divide a string/input into distinct arguments.
+
+This allows the core loop to be cleaned up a little.
+
+~main~ is now:
+
+#+BEGIN_SRC C
+  int main(int argc, char *argv[])
+  {
+    void evaluate(int type, char s[]);
+
+    ++argv;
+    while (--argc > 0) {
+      evaluate(parseop(*argv), *argv);
+      ++argv;
+    }
+
+    return 0;
+  }
+#+END_SRC
+
+In short, so long as there's an argument to work with parse the argument and then evaluate the argument given the parse.
+
+~parseop~ figures out whether the arg is a variable or number.
+I.e. it's the same as ~getop~ without worrying about dividing a string:
+
+#+BEGIN_SRC C
+  int parseop(char *arg)
+  {
+    int i = 0;
+
+    if (!isdigit(arg[i]) && arg[i] != '.' && arg[i] != '-' && arg[i] != '+') {
+      if ('v' < arg[i] && arg[i] <= 'z')
+	return VARIABLE;
+      else if (arg[i] == 'l')
+	return LAST;
+      return arg[i];      /* not a number */
+    }
+
+    if (isdigit(arg[i]) || arg[i] == '-' || arg[i] == '+')
+      while (isdigit(arg[++i]))
+	;
+    if (arg[i] == '.')      /* collect fraction part */
+      while (isdigit(arg[++i]))
+	;
+
+    if (i > 0 && !isdigit(arg[i - 1]))
+      return arg[i - 1];
+    else if (arg[i] == '\0') // only return n if exhausted arg
+      return NUMBER;
+    else
+      return 0;
+  }
+#+END_SRC
+
+The slight change is a check on whether there's arg is a digit by checking to see there's no additional chars in the arg after digits have been exhausted.
+
+~evaluate~ is the switch previously in ~main~.
+There are two differences.
+
+First, the variable case no longer returns the value of the variable.
+This means you can silently assign a variable.
+
+#+BEGIN_SRC C
+  case VARIABLE:
+  vp = s[0] - 'v';
+  // printf("variable vp: %d\n", vp);
+  push(vars[vp]);
+  break;
+#+END_SRC
+
+Second, newlines are no longer relevant, so printing happens by typing 'p'.
+
+#+BEGIN_SRC C
+  case 'p':
+    printf("\t%.8g\n", pop());
+    break;
+#+END_SRC
+
+At this point, revising ~evaluate~ to work on strings would be nice to allow for more expressive arguments…
 
 ** 5-13
 
