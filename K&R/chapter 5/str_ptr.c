@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   void test_strncpy_ptr();
   void test_strncmp_ptr();
   void test_reverse_ptr();
-  int tail(int argc, char *argv[]);
+  int char_tail(int argc, char *argv[]);
 
   /* test_strcat_ptr(); */
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
   /* test_reverse_ptr(); */
 
-  tail(argc, argv);
+  char_tail(argc, argv);
 
   return 0;
 }
@@ -166,7 +166,7 @@ void test_whu(char *s, int n)
   printf("\n");
 }
 
-int tail(int argc, char *argv[])
+int char_tail(int argc, char *argv[])
 {
   int c;
   int n = 10;
@@ -207,9 +207,9 @@ int whu(char *from, char *to, int n)
   while (*from != '\0') {
     (*(to + (i++ % n)) = *from);
     from++;
-    /* for (int i = 0; i < n; i++) */
-    /*   printf("%c", to[i]); */
-    /* printf("\n"); */
+    /* for (int i = 0; i < n; i++)
+       printf("%c", to[i]);
+       printf("\n"); */
   }
   *(to + i++) = '\0';
   if (i > n)
@@ -321,3 +321,5 @@ void reverse_ptr(char *s)
     *(s + j) = c;
   }
 }
+
+
