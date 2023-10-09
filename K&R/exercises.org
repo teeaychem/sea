@@ -3617,3 +3617,63 @@ And, as the length is known, this is about as taxing as walking forwards:
       printf("%s\n", *lineptr--);
   }
 #+END_SRC
+
+** 5-15
+
+Again, issues of abstraction.
+Do we extend ~str_cmp~ to take an additional argument?
+If so, this requires a rewrite of ~str_cmp~.
+
+So, here's a parallel function, which uses ~lower~ to lowercase any alphabetic character.
+
+#+BEGIN_SRC C
+char lower(char c)
+{
+  if ('A' <= c && c <= 'Z')
+    return c - 'A' + 'a';
+  else
+    return c;
+}
+#+END_SRC
+
+#+BEGIN_SRC C
+int strcmp_bk_fold(char *s, char *t)
+{
+  char lower(char c);
+  for ( ; lower(*s) == lower(*t); s++, t++)
+    if (*s == '\0')
+      return 0;
+  return lower(*s) - lower(*t);
+}
+
+#+END_SRC
+
+Then, there's an issue of choosing between the sorting functions.
+
+As there's no way (I have found) to set up a function variable (unless writing ~void x~, which seems inadvisable) it seems easiest to split calls to ~qsort~ into cases:
+
+#+BEGIN_SRC C
+  if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
+  if (numeric) {
+    qsort_bk((void**) lineptr,
+	     0,
+	     nlines - 1,
+	     (int (*)(void*,void*)) numcmp_bk);
+  }
+  else if (fold) {
+    qsort_bk((void**) lineptr,
+	     0,
+	     nlines - 1,
+	     (int (*)(void*,void*)) strcmp_bk_fold);
+  }
+  else {
+    qsort_bk((void**) lineptr,
+	     0,
+	     nlines - 1,
+	     (int (*)(void*,void*)) strcmp_bk);
+  }
+#+END_SRC
+
+Though, with this passing additional parameters to any given sorting function is simple.
+On the other hand, it might be hard to see where an argument flag goes.
+Hum hum.
