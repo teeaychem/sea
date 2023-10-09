@@ -3252,8 +3252,232 @@ Second, newlines are no longer relevant, so printing happens by typing 'p'.
 
 At this point, revising ~evaluate~ to work on strings would be nice to allow for more expressive arguments…
 
+** 5-12
+
+No super confident on stops but with some minor adjustments at worst this should be good.
+
+The idea is to save an array of integers used to determine the length of a stop.
+This is then cycled through.
+
+The stop list is an string argument of space separated ints.
+
+The func ~satoia~ uses library funcs ~isdigit~ and ~atoi~ to create a parallel list of integers.
+
+#+BEGIN_SRC C
+/* reads a arr of ints separated by a (single) space to an array
+   up to specified max and returns number of ints found. */
+int satoia(char *in, int *out, int max)
+{
+  int foundints = 1;
+  while (*in != '\0' && max > 0) {
+    if (*in == ' ') {
+      ++out;
+      ++foundints;
+    }
+    else if (isdigit(*in)) {
+      *out = atoi(in);
+      --max;
+      while (isdigit(*(in + 1))) // atoi captures int
+	in++;                    // so skip chars
+    }
+    else {
+      return -1;
+    }
+    in++;
+  }
+  *++out = '\0';
+  return foundints;
+}
+#+END_SRC
+
+~main~ then checks the list is legal and otherwise defaults to the list ~"4"~.
+
+#+BEGIN_SRC C
+int main(int argc, char *argv[])
+{
+  int satoia(char *in, int *out, int max);
+
+  stops = satoia(argv[1], &stopdist[0], MAX_STOPS);
+
+  if (stops < 1) {
+    stops = satoia("4", &stopdist[0], MAX_STOPS);
+  }
+
+  // detab();
+  entab();
+
+  return 0;
+}
+
+#+END_SRC
+
+*** entab
+
+~entab~ is rewritten from before though the core idea remains the same.
+spaces are ignored unless needed and a check is made to see whether a tab should be inserted.
+
+As stops are variable, a for loop simulates a tab by printing an equal number of the current stop as an int.
+This obv. doesn't work if the stop is greater than 9.
+
+Note, the stops given are cycled through.
+This could be changed to stay at the last stop, etc.
+
+#+BEGIN_SRC C
+  void entab(void)
+  {
+    int stopp = 0;
+    int spacesSeen = 0;
+    int afterTab = 0;
+    char c;
+
+    while ((c = getchar()) != EOF) {
+
+      ++afterTab;
+
+      if (c == '\n') { // reset on newline
+	stopp = 0;
+	spacesSeen = 0;
+	afterTab = 0;
+      }
+
+      if (c == ' ') { // if space then maybe replace with tab
+	++spacesSeen;
+      }
+      else { // char, so first
+	while (spacesSeen > 0) { // insert spaces skipped over in hope of tab
+	  putchar(' ');
+	  --spacesSeen;
+	}
+	putchar(c); // insert char
+      }
+
+      if (afterTab == stopdist[stopp]) { // check to see if at stop
+	if (spacesSeen) {
+	  for (int a = 0; a < spacesSeen; a++) putchar('0' + stopdist[stopp]);
+	  // putchar('\t');
+	  spacesSeen = 0;
+	}
+	afterTab = 0;
+	stopp = (stopp + 1) % stops;
+      }
+    }
+  }
+#+END_SRC
+
+
+
+
+
 ** 5-13
 
+*** tail
+
+The basic idea is to use a looping buffer/array of string pointers.
+As we store the last n strings, storage for the next string is either already free or obtained by deleting the 'next' string in the buffer.
+
+This is perhaps clearest seen when calculating space:
+
+#+BEGIN_SRC C
+  int allocbuf_space(char *line_a, char *line_b)
+  {
+    if (*line_b > *line_a)
+      return *line_b - *line_a;
+    else
+      return ALLOCSIZE - (*line_a - *line_b);
+  }
+#+END_SRC
+
+line b is always the line after line a when called.
+So, this returns the space until line b starts.
+
+Likewise, obtaining the next space to store a char loops:
+
+#+BEGIN_SRC C
+  char *next_allocbuf(char *current_allocbuf)
+  {
+    if ((current_allocbuf - allocbuf) == (ALLOCSIZE - 1)) {
+      return &allocbuf[0];
+    }
+    else {
+      return current_allocbuf + 1;
+    }
+  }
+#+END_SRC
+
+Pretty much everything happens in main as there's no way to store a variable sized buffer outside of a function (at least given the tools presented so far).
+
+#+BEGIN_SRC C
+#define ALLOCSIZE 1023
+static char allocbuf[ALLOCSIZE + 1];
+
+int main(int argc, char *argv[])
+{
+  void read_args(int argc, char *argv[], int *n);
+  int allocbuf_space(char *line_a, char *line_b);
+  char *next_allocbuf(char *current_allocbuf);
+
+  int line_ptrs = 5; // default number of line pointers
+  read_args(argc, argv, &line_ptrs); // read arguments
+
+  char *line_ptr_buf[line_ptrs]; // buffer for line pointers
+  int lp_i = -1; // first run immediately sets to +1
+
+  for (int i = 0; i < line_ptrs; i++)
+    line_ptr_buf[i] = &allocbuf[ALLOCSIZE + 1];
+
+  char c;
+  int available_space = ALLOCSIZE;
+  char *allocbuf_ptr = allocbuf; // points to next available space
+  char new_str = 1; // boolean for whether to store a new string
+
+  while ((c = getchar()) != EOF) {
+    if (c == '\n') {
+      *allocbuf_ptr = '\0'; // end the string
+      new_str = 1; // set new string on next char
+    }
+    else {
+      if (new_str) { // take care of new string if needed
+	// move allocbuf_ptr and lp_i forward
+	allocbuf_ptr = next_allocbuf(allocbuf_ptr);
+	lp_i = (lp_i + 1) % line_ptrs;
+	// update new line
+	line_ptr_buf[lp_i] = allocbuf_ptr;
+	// space is from deleting next pointer.
+	available_space = allocbuf_space(line_ptr_buf[lp_i],
+					 line_ptr_buf[(lp_i + 1) % line_ptrs]);
+	new_str = 0;
+      }
+      if (available_space > 0) { // store the char, ptr forward, reduce space.
+	*allocbuf_ptr = c;
+	allocbuf_ptr = next_allocbuf(allocbuf_ptr);
+	--available_space;
+      }
+    }
+  }
+
+  printf("\n");
+  for (int j = 1; j <= line_ptrs; j++) {
+    if (line_ptr_buf[(lp_i + j) % line_ptrs] != &allocbuf[ALLOCSIZE + 1])
+      // printf("%d: %s\n", j, line_ptr_buf[(lp_i + j) % line_ptrs]);
+      printf("%s\n", line_ptr_buf[(lp_i + j) % line_ptrs]);
+  }
+
+  return 0;
+}
+#+END_SRC
+
+Two things of note:
+
+1. ALLOCSIZE reserves an extra space for testing whether a line pointer has been used.
+   An alterative is to have a counter of something, but this seems clean enough.
+2. Setting up for a new string happens on the next character after a new line.
+   This is so any line stored in the buffer is not overwritten if an EOF immediately follows a new line.
+   There are variious other ways to deal with this, but it seems conceputally easiest to only write when needed.
+
+The main thinking point with this exercise was what to do with the line pointer buffer.
+There's not really a good option other than storing everything in main.
+And, this itself is not ideal as it clutters main with details.
+Still, this seems the only way to go, as no other storage persists between function calls.
 
 *** misread - last n chars
 
