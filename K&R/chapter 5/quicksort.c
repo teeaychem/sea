@@ -14,6 +14,7 @@ void writelines_reverse(char *lineptr[], int nlines);
 void qsort_bk(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp_bk(char *s1, char *s2);
 int strcmp_bk(char *s, char *t);
+int strcmp_bk_fold(char *s, char *t);
 
 /* sort input lines */
 
@@ -21,6 +22,7 @@ int main(int argc, char *argv[]) {
   int nlines; /* number of input lines read */
   int numeric = 0; /* 1 if numeric sort */
   int reverse = 0; /* 1 if reverse sort */
+  int fold = 0; /* 1 if fold sort */
   int c;
 
   while (--argc > 0 && (*++argv)[0] == '-') {
@@ -32,6 +34,9 @@ int main(int argc, char *argv[]) {
       case 'r':
 	reverse = 1;
 	break;
+      case 'f':
+	fold = 1;
+	break;
       default:
 	printf("quicksort: illegal operation \'%c\'\n", c);
 	break;
@@ -40,10 +45,24 @@ int main(int argc, char *argv[]) {
   }
 
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    qsort_bk((void**) lineptr,
-	     0,
-	     nlines - 1,
-	     (int (*)(void*,void*))(numeric ? numcmp_bk : strcmp_bk));
+    if (numeric) {
+      qsort_bk((void**) lineptr,
+	       0,
+	       nlines - 1,
+	       (int (*)(void*,void*)) numcmp_bk);
+    }
+    else if (fold) {
+      qsort_bk((void**) lineptr,
+	       0,
+	       nlines - 1,
+	       (int (*)(void*,void*)) strcmp_bk_fold);
+    }
+    else {
+      qsort_bk((void**) lineptr,
+	       0,
+	       nlines - 1,
+	       (int (*)(void*,void*)) strcmp_bk);
+    }
     (reverse ? writelines_reverse(lineptr, nlines) : writelines(lineptr, nlines));
     return 0;
   }
@@ -79,6 +98,27 @@ int strcmp_bk(char *s, char *t)
       return 0;
   return *s - *t;
 }
+
+char lower(char c)
+{
+  if ('A' <= c && c <= 'Z')
+    return c - 'A' + 'a';
+  else
+    return c;
+}
+
+/* strcmp_bk_fold: return <0 if s<t, 0 if s==t, >0 if s>t
+ where s,t are lowercased */
+int strcmp_bk_fold(char *s, char *t)
+{
+  char lower(char c);
+  for ( ; lower(*s) == lower(*t); s++, t++)
+    if (*s == '\0')
+      return 0;
+  return lower(*s) - lower(*t);
+}
+
+
 
 /* numcmp_bk: compare s1 and s2 numerically */
 int numcmp_bk(char *s1, char *s2)
