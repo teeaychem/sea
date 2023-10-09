@@ -3367,9 +3367,7 @@ This could be changed to stay at the last stop, etc.
 
 
 
-
 ** 5-13
-
 *** tail
 
 The basic idea is to use a looping buffer/array of string pointers.
@@ -3378,14 +3376,27 @@ As we store the last n strings, storage for the next string is either already fr
 This is perhaps clearest seen when calculating space:
 
 #+BEGIN_SRC C
-  int allocbuf_space(char *line_a, char *line_b)
+    int allocbuf_space(char *line_a, char *line_b)
   {
-    if (*line_b > *line_a)
-      return *line_b - *line_a;
-    else
-      return ALLOCSIZE - (*line_a - *line_b);
+    if (*line_b == allocbuf[ALLOCSIZE - 1]) {
+      // haven't looped around, so whatever's left after line_a of buffer.
+      return (&allocbuf[ALLOCSIZE - 1] - line_a);
+    }
+    else if ((line_b + 0) >= line_a) {
+      // line_b does not require a loop, so space until line_b starts
+      return (line_b + 0) - line_a;
+    }
+    else {
+      // line_b requires a loop, so take everything used until line_a
+      // and flip
+      return ALLOCSIZE - (line_a - (line_b + 0));
+    }
   }
 #+END_SRC
+
+Aside:
+The first version confused the value of a pointer with the pointer.
+This slipped through (initial) testing as I only used single characters.
 
 line b is always the line after line a when called.
 So, this returns the space until line b starts.
@@ -3417,51 +3428,72 @@ int main(int argc, char *argv[])
   char *next_allocbuf(char *current_allocbuf);
 
   int line_ptrs = 5; // default number of line pointers
+
   read_args(argc, argv, &line_ptrs); // read arguments
 
   char *line_ptr_buf[line_ptrs]; // buffer for line pointers
-  int lp_i = -1; // first run immediately sets to +1
+  int lp_i = 0; // first run immediately sets to +1 i.e. 0
+  char new_str = 1; // boolean for whether to store a new string
 
   for (int i = 0; i < line_ptrs; i++)
-    line_ptr_buf[i] = &allocbuf[ALLOCSIZE + 1];
+    line_ptr_buf[i] = &allocbuf[ALLOCSIZE];
+
+  /* main loop.
+     while c (char) isn't EOF
+     if c is newline, update buffer stuff.
+     else, so long as space then add to buffer.
+  */
+
+  printf("Line pointers = %d\n", line_ptrs);
 
   char c;
   int available_space = ALLOCSIZE;
-  char *allocbuf_ptr = allocbuf; // points to next available space
-  char new_str = 1; // boolean for whether to store a new string
+  char *allocbuf_ptr = &allocbuf[0] - 1; // points to next available space
 
   while ((c = getchar()) != EOF) {
+    if (new_str) { // take care of new string if needed
+      // move allocbuf_ptr and lp_i forward
+      allocbuf_ptr = next_allocbuf(allocbuf_ptr);
+      lp_i = ((lp_i + 1) % line_ptrs);
+      // update new line
+      line_ptr_buf[lp_i] = allocbuf_ptr;
+      // space is from deleting next pointer.
+      available_space = allocbuf_space(line_ptr_buf[lp_i],
+				       line_ptr_buf[(lp_i + 1) % line_ptrs]);
+      new_str = 0;
+    }
+
     if (c == '\n') {
       *allocbuf_ptr = '\0'; // end the string
       new_str = 1; // set new string on next char
     }
-    else {
-      if (new_str) { // take care of new string if needed
-	// move allocbuf_ptr and lp_i forward
-	allocbuf_ptr = next_allocbuf(allocbuf_ptr);
-	lp_i = (lp_i + 1) % line_ptrs;
-	// update new line
-	line_ptr_buf[lp_i] = allocbuf_ptr;
-	// space is from deleting next pointer.
-	available_space = allocbuf_space(line_ptr_buf[lp_i],
-					 line_ptr_buf[(lp_i + 1) % line_ptrs]);
-	new_str = 0;
-      }
-      if (available_space > 0) { // store the char, ptr forward, reduce space.
+    else if (available_space > 2) { // store the char, ptr forward, reduce space.
 	*allocbuf_ptr = c;
 	allocbuf_ptr = next_allocbuf(allocbuf_ptr);
 	--available_space;
-      }
+    }
+    else {
+      printf("Ah, out of space!: %c\n", c);
     }
   }
 
-  printf("\n");
-  for (int j = 1; j <= line_ptrs; j++) {
-    if (line_ptr_buf[(lp_i + j) % line_ptrs] != &allocbuf[ALLOCSIZE + 1])
-      // printf("%d: %s\n", j, line_ptr_buf[(lp_i + j) % line_ptrs]);
-      printf("%s\n", line_ptr_buf[(lp_i + j) % line_ptrs]);
-  }
+  /* to print the buffer
+  printf("------\n");
+  for (int j = 0; j < ALLOCSIZE; j++)
+    printf("%d: %c\n", j, allocbuf[j]);
+  printf("------\n");
+  */
 
+  for (int j = 0; j < line_ptrs; j++) {
+    int offset = (lp_i + j + 1) % line_ptrs;
+    if (line_ptr_buf[offset] != &allocbuf[ALLOCSIZE]) {
+      // printf("%d: ", j); // display lines
+      for (char *k = line_ptr_buf[offset]; *k != '\0'; k++) {
+	printf("%c", *k);
+    }
+    printf("\n");
+  }
+  }
   return 0;
 }
 #+END_SRC
@@ -3473,11 +3505,26 @@ Two things of note:
 2. Setting up for a new string happens on the next character after a new line.
    This is so any line stored in the buffer is not overwritten if an EOF immediately follows a new line.
    There are variious other ways to deal with this, but it seems conceputally easiest to only write when needed.
+3. (1) simplifies printing the lines.
+   For, it's possible to print everything starting from the next pointer (looping around).
+   And, any pointer that's unused is easily filtered out.
+   The alternative requires different approaches depending on whether the line buffer has been filled (need to start one ahead) or not (start with the current pointer).
+   I'm not sure if there's an elegant solution here.
 
 The main thinking point with this exercise was what to do with the line pointer buffer.
 There's not really a good option other than storing everything in main.
 And, this itself is not ideal as it clutters main with details.
 Still, this seems the only way to go, as no other storage persists between function calls.
+
+Though, after thinknig things through the main thinking points ended up being caution regarding values of pointers and pointers, and what to do with mod.
+
+Working out a better solution for a full buffer is for some other time.
+At the moment additional characters are ignored, and cycling through the buffer is needed to clear it.
+Alternatively one could eat previous lines as needed, and trigger something if the current line is too big for the buffer.
+
+Likewise, the approach to printing lines may not be ideal if the lines allowed are large but only a small number are typically stored.
+
+Anyway, some other time…
 
 *** misread - last n chars
 
