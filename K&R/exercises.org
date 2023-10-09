@@ -3593,3 +3593,27 @@ After (maybe) updating ~n~ the last ~n~ digits of the string given as an argumen
     return 0;
   }
 #+END_SRC
+
+** 5-14
+
+The flag follows the template set out for ~flag~.
+
+So, the only thing to think about is reversing the result.
+
+There are two options:
+
+1. Require the comparison operators to take a reverse argument.
+2. Reverse the result after comparison is over.
+
+The latter is very simple to do, as it amounts to walking backwards through the sorted array.
+And, as the length is known, this is about as taxing as walking forwards:
+
+#+BEGIN_SRC C
+  /* writelines_reverse: write output lines in reverse */
+  void writelines_reverse(char *lineptr[], int nlines)
+  {
+    lineptr = lineptr + (nlines - 1); // jump to end
+    while (nlines-- > 0) // print going backwards
+      printf("%s\n", *lineptr--);
+  }
+#+END_SRC
