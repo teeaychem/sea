@@ -49,18 +49,10 @@ int main(int argc, char *argv[]) {
   }
 
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    if (numeric) {
-      qsort_bk((void**) lineptr,
-	       0,
-	       nlines - 1,
-	       (int (*)(void*,void*)) numcmp_bk);
-    }
-    else {
-      qsort_bk((void**) lineptr,
-	       0,
-	       nlines - 1,
-	       (int (*)(void*,void*)) strcmp_fold);
-    }
+    qsort_bk((void**) lineptr,
+	     0,
+	     nlines - 1,
+	     (int (*)(void*,void*)) (numeric ? numcmp_bk : strcmp_fold));
     (reverse ? writelines_reverse(lineptr, nlines) : writelines(lineptr, nlines));
     return 0;
   }
@@ -78,12 +70,13 @@ void qsort_bk(void *v[], int left, int right, int (*comp)(void *, void *)) {
   void swap(void *v[], int, int);
 
   if (left >= right) /* do nothing if array contains */
-    return; /* fewer than two elements */
+    return;          /* fewer than two elements */
 
   swap(v, left, (left + right)/2); last = left;
 
   for (i = left+1; i <= right; i++)
-    if ((*comp)(v[i], v[left]) < 0) swap(v, ++last, i); swap(v, left, last);
+    if ((*comp)(v[i], v[left]) < 0) swap(v, ++last, i);
+  swap(v, left, last);
   qsort_bk(v, left, last - 1, comp);
   qsort_bk(v, last+1, right, comp);
 }
