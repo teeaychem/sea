@@ -3620,6 +3620,8 @@ And, as the length is known, this is about as taxing as walking forwards:
 
 ** 5-15
 
+*** initial
+
 Again, issues of abstraction.
 Do we extend ~str_cmp~ to take an additional argument?
 If so, this requires a rewrite of ~str_cmp~.
@@ -3677,3 +3679,85 @@ As there's no way (I have found) to set up a function variable (unless writing ~
 Though, with this passing additional parameters to any given sorting function is simple.
 On the other hand, it might be hard to see where an argument flag goes.
 Hum hum.
+
+*** second pass
+
+With directoriy order intended to work with fold it seems there should be a single string sorting function.
+
+Though, as this can't take additional arguments, it relies on the relevant flags being set outside of ~main~.
+
+~fold~ is an optional conversion, so ~fold ? lower(*s) : *s~ is natural.
+However, inlining this test gets messy.
+So, an opportunity to use ~do… while…~!
+This is important as we want to (maybe) convert to lowercase before equality is checked.
+An additional pair of variables is needed as the (maybe) conversion needs to be stored.
+And, helpfully, this means ~s~ and ~t~ can be incremented immediately.
+
+#+BEGIN_SRC C
+  int strcmp_fold(char *s, char *t)
+  {
+    char lower(char c);
+    char a, b;
+
+    do {
+      a = fold ? lower(*s) : *s; // set a and b for comp
+      b = fold ? lower(*t) : *t;
+
+      if (a == b && a == '\0') // check exit
+	{ return 0; }
+
+      ++s; // update s and t for next cycle
+      ++t;
+    }
+    while (a == b);
+    return a - b;
+  }
+#+END_SRC
+
+** 5-16
+
+With the updated ~strcmp_fold~ adding directory order is simple.
+
+First, a helper function to check whether a character is a letter, number, or blank:
+
+#+BEGIN_SRC C
+  char isLNB(char *c)
+  {
+    return (('A' <= *c && *c <= 'Z') ||
+	    ('a' <= *c && *c <= 'z') ||
+	    ('0' <= *c && *c <= '9') ||
+	    *c == ' ');
+  }
+#+END_SRC
+
+Then, skip anything which doesn't satisfy the above test (and don't go past the bounds of the string).
+
+#+BEGIN_SRC C
+  int strcmp_fold(char *s, char *t)
+{
+  char isLNB(char *c);
+  char lower(char c);
+  char a, b;
+
+  do {
+
+    if (directory) {
+      while (!isLNB(s) && *s != '\0')
+	{ ++s; }
+      while (!isLNB(t) && *t != '\0')
+	{ ++t; }
+    }
+
+    a = fold ? lower(*s) : *s;
+    b = fold ? lower(*t) : *t;
+
+    if (a == b && a == '\0')
+      { return 0; }
+
+    ++s;
+    ++t;
+  }
+  while (a == b);
+  return a - b;
+}
+#+END_SRC
