@@ -3795,3 +3795,85 @@ I.e. this function could do all the steps outlined above.
 
 This seems the best option.
 
+** TODO 5-18
+** TODO 5-19
+** TODO 5-20
+
+* chapter 6
+
+** 6-1
+
+Without some examples I'm not entirely sure what was intended.
+In any case…
+
+~iswordpart~ expands what is allowed as a word part.
+Here, various symbols are included.
+
+By 'a more general getword than is necessary for this program' I guess the authors mean there's really no need to check the initial character, as a word is only relevant if matched to something in keytab.
+In any case, to keep the original distinction an argument is passed depending on whether or not one is checked the start of a word.
+
+#+BEGIN_SRC C
+int iswordpart(int c, int initialchar)
+{
+  return ((initialchar ? isalpha(c) : isalnum(c)) ||
+	  c == '_' ||
+	  c == '/' ||
+	  c == '*' ||
+	  c == '#');
+}
+#+END_SRC
+
+Both '_' and '#' are (maybe) used for keywords.
+E.g. ~__LINE__~ or ~#define~.
+~/~ and ~*~ enable checking for a comment.
+
+To deal with string constants and commends we reconfigre the while loop to skip anything between escape strings (e.g. ~/*~ or ~"~).
+
+The loop is now:
+
+#+BEGIN_SRC C
+  while (getword(word, MAXWORD) != EOF) {
+    // skip anything between comments
+    if (checkleftescape(word))
+      { while ((gw = getword(word, MAXWORD)) != EOF && !checkrightescape(word)) { }; }
+    // note additional EOF check
+    if (gw != EOF && (n = binsearch(word, keytab, NKEYS)) >= 0)
+      { keytab[n].count++; }
+  }
+#+END_SRC
+
+The idea of ~checkleftescape~ and ~checkrightescape~ is to check whether an escape string is found and then skip or stop skipping.
+
+These are defined using ~strcmp~, and when an escape string is found the /opposing/ string is stored and tested for:
+
+#+BEGIN_SRC C
+  /* if escape string is found write down closing string
+     note, strcmp returns 0 when strings are equal. */
+  char esc_str[3];
+
+  int checkleftescape(char *word)
+  {
+    if (!strcmp(word, "/*"))
+      { strcpy(esc_str, "*/");
+	return 1; }
+    else if (!strcmp(word, "\""))
+      { strcpy(esc_str, word);
+	return 1; }
+    else if (!strcmp(word, "//"))
+      { strcpy(esc_str, "\n");
+	return 1; }
+    else
+      { return 0; }
+  }
+
+  int checkrightescape(char *word)
+  {
+    return !strcmp(word, esc_str);
+  }
+#+END_SRC
+
+Note, ~esc_str~ should be expanded if longer escape strings are added.
+
+I think this is sufficient for now.
+The extension to calls to ~isalpha~ and ~isalnum~ just means additional searches are made.
+And, perhaps the easiest thing to do here is to signal whether a non-keyword character was seen and hold this signal until the search happens.
