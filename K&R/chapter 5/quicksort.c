@@ -13,16 +13,17 @@ void writelines_reverse(char *lineptr[], int nlines);
 
 void qsort_bk(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp_bk(char *s1, char *s2);
-int strcmp_bk(char *s, char *t);
-int strcmp_bk_fold(char *s, char *t);
+int strcmp_fold(char *s, char *t);
+
+
+int numeric = 0; /* 1 if numeric sort */
+int reverse = 0; /* 1 if reverse sort */
+int fold = 0;    /* 1 if fold sort */
+int directory = 0; /* 1 if directory sort */
 
 /* sort input lines */
-
 int main(int argc, char *argv[]) {
   int nlines; /* number of input lines read */
-  int numeric = 0; /* 1 if numeric sort */
-  int reverse = 0; /* 1 if reverse sort */
-  int fold = 0; /* 1 if fold sort */
   int c;
 
   while (--argc > 0 && (*++argv)[0] == '-') {
@@ -36,6 +37,9 @@ int main(int argc, char *argv[]) {
 	break;
       case 'f':
 	fold = 1;
+	break;
+      case 'd':
+	directory = 1;
 	break;
       default:
 	printf("quicksort: illegal operation \'%c\'\n", c);
@@ -51,17 +55,11 @@ int main(int argc, char *argv[]) {
 	       nlines - 1,
 	       (int (*)(void*,void*)) numcmp_bk);
     }
-    else if (fold) {
-      qsort_bk((void**) lineptr,
-	       0,
-	       nlines - 1,
-	       (int (*)(void*,void*)) strcmp_bk_fold);
-    }
     else {
       qsort_bk((void**) lineptr,
 	       0,
 	       nlines - 1,
-	       (int (*)(void*,void*)) strcmp_bk);
+	       (int (*)(void*,void*)) strcmp_fold);
     }
     (reverse ? writelines_reverse(lineptr, nlines) : writelines(lineptr, nlines));
     return 0;
@@ -90,15 +88,7 @@ void qsort_bk(void *v[], int left, int right, int (*comp)(void *, void *)) {
   qsort_bk(v, last+1, right, comp);
 }
 
-/* strcmp_bk: return <0 if s<t, 0 if s==t, >0 if s>t */
-int strcmp_bk(char *s, char *t)
-{
-  for ( ; *s == *t; s++, t++)
-    if (*s == '\0')
-      return 0;
-  return *s - *t;
-}
-
+/* alpha to lowercase */
 char lower(char c)
 {
   if ('A' <= c && c <= 'Z')
@@ -107,17 +97,45 @@ char lower(char c)
     return c;
 }
 
-/* strcmp_bk_fold: return <0 if s<t, 0 if s==t, >0 if s>t
- where s,t are lowercased */
-int strcmp_bk_fold(char *s, char *t)
+/* test whether c is a letter number or blank */
+char isLNB(char *c)
 {
-  char lower(char c);
-  for ( ; lower(*s) == lower(*t); s++, t++)
-    if (*s == '\0')
-      return 0;
-  return lower(*s) - lower(*t);
+  return (('A' <= *c && *c <= 'Z') ||
+	  ('a' <= *c && *c <= 'z') ||
+	  ('0' <= *c && *c <= '9') ||
+	  *c == ' ');
 }
 
+
+/* strcmp_bk_fold: return <0 if s<t, 0 if s==t, >0 if s>t
+   where s,t are lowercased if fold is set */
+int strcmp_fold(char *s, char *t)
+{
+  char isLNB(char *c);
+  char lower(char c);
+  char a, b;
+
+  do {
+
+    if (directory) {
+      while (!isLNB(s) && *s != '\0')
+	{ ++s; }
+      while (!isLNB(t) && *t != '\0')
+	{ ++t; }
+    }
+
+    a = fold ? lower(*s) : *s;
+    b = fold ? lower(*t) : *t;
+
+    if (a == b && a == '\0')
+      { return 0; }
+
+    ++s;
+    ++t;
+  }
+  while (a == b);
+  return a - b;
+}
 
 
 /* numcmp_bk: compare s1 and s2 numerically */
