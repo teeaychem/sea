@@ -3761,3 +3761,37 @@ Then, skip anything which doesn't satisfy the above test (and don't go past the 
   return a - b;
 }
 #+END_SRC
+
+** 5-17
+
+So, I guess the idea is to sort on substrings identified somehow.
+For a general approach, it may be preferable to work with start/end indicies.
+This won't work for variable fields, but a different program could first figure out which indicies the field corresponds to.
+
+But where to do this?
+I guess as arguments to the comparison function inside quicksort.
+So, the idea is:
+
+1. Before the comparison save pointers to the start of each string.
+2. Update pointers to be passed to start index, or the end of string (whichever is first).
+3. Walk through each string until one past the end index or the end of string.
+4. Save the character and temporarily replace with end of string.
+5. Do the comparison.
+6. Replace the stored character (if any).
+
+Or, alteratively, copy each substring to temporary buffers and do the comparison on the substrings.
+
+There are another two alternatives.
+
+a. Store two arrays.
+   The first is substring and the second is full strings.
+   At the end of the first is a pointer to the second.
+   Sorting happens on the first, but on print the pointer is followed to the second.
+b. Modify the comparison functions.
+
+Ah, okay, modifying the comparison seems nice.
+For, rather than passing functions to quicksort directly these can first be passed to an 'update strings' function which deals with any transformation to the strings and then switches to a particular comparison function.
+I.e. this function could do all the steps outlined above.
+
+This seems the best option.
+
