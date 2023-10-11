@@ -14,8 +14,6 @@
   }
 #+END_SRC
 
-#+RESULTS:
-
 ** 1-2
 
 ~\o~ is related to ~\0~?
@@ -26,11 +24,11 @@ Included in Ex. 4, though formatting other than a heading.
 
 ** 1-4
 
-Inluced in Ex. 5
+Induced in Ex. 5
 
 ** 1-5
 
-Straightfoward, with a few additions for testing whether constants are limited to ints (no).
+Straightforward, with a few additions for testing whether constants are limited to ints (no).
 
 #+BEGIN_SRC C
 #include <stdio.h>
@@ -379,7 +377,7 @@ And, what happens with something like ^B (the backspace char)?
 
 ** 1-12
 
-Moslty a modification of word counting in the text.
+Mostly a modification of word counting in the text.
 Just, without the counting, and the body of empty case involving a flag.
 
 #+BEGIN_SRC C
@@ -409,7 +407,7 @@ int main() {
 
 ** 1-13
 
-Histogram in vertical orientaion.
+Histogram in vertical orientation.
 
 Sample output:
 
@@ -834,7 +832,7 @@ At the moment I don't see a way to do this generally.
 The argument for this being impossible is:
 
 Suppose possible.
-Then, we have a way to recover arbitrarily large information using tools which require prespecified size and do not allow increasing such specified size.
+Then, we have a way to recover arbitrarily large information using tools which require pre-specified size and do not allow increasing such specified size.
 So, there is a finite limit on the memory required to store an arbitrary amount of data.
 But, that's not possible.
 
@@ -842,7 +840,7 @@ So, there's a trade-off.
 
 - Store a sequence of b/t and then print regardless if run out of storage.
   - No 'inner' b/ts are lost, but trailing b/t's may be present.
-- Store a sequnece of b/t and then discard if run out of storage.
+- Store a sequence of b/t and then discard if run out of storage.
   - 'Inner' b/ts may be lost, but not trailing b/ts.
 
 The former seems more sensible, so let's go with the latter.
@@ -1337,12 +1335,12 @@ Note, nothing depends on the order of the newline/EOF test (apart from a small i
 
 ** 2-3
 
-There's nothing much to coverting a string to hex.
+There's nothing much to converting a string to hex.
 Assuming the input is relevantly ASCII structured, that is to help covert characters to integers.
 
 The general idea is:
 
-sum (16^(legnth - i) * string[i]) --- where length is the length of the string, assuming no optional 0x/0X.
+sum (16^(length - i) * string[i]) --- where length is the length of the string, assuming no optional 0x/0X.
 
 - The power function used here could be redone.
 - A proper warning on error would be nice.
@@ -1420,7 +1418,6 @@ sum (16^(legnth - i) * string[i]) --- where length is the length of the string, 
       return base;
     }
   }
-  
 #+END_SRC
 
 ** 2-4
@@ -1429,7 +1426,7 @@ Nothing to interesting here, the only addition is a func to return whether a cha
 
 This could be made much more efficient by sorting the lookup string or doing mostly anything other than a loop checking for identity.
 
-~found~ is uneeded as every instance could be replaced with ~c == d~.
+~found~ is unneeded as every instance could be replaced with ~c == d~.
 However, this requires making the comparison each time and makes things a little harder to read.
 
 #+BEGIN_SRC C
@@ -1686,7 +1683,7 @@ Keep going until there's no difference between low and high, then check to see w
 ** 3-2
 
 There's nothing too interesting here.
-As chars are ints it's easy to switch on the percieved content of a char.
+As chars are ints it's easy to switch on the perceived content of a char.
 Need two separate pointers to elems of the arrays as may need to add an extra character (~escape~) or remove an extra character (~unescape~).
 
 Most of the time was tracking down a bug due to writing ~s[j] = t[j]~ in the else clause of ~unescape~.
@@ -1826,7 +1823,7 @@ To fix this, we can take the bit complement of a negative number and 'manually' 
 
 This results in a special first case, so the do… while… is rewritten to special case… (regular) while…
 
-The special case is just like the reguar case expect for negative adjustment is made to record an extra one.
+The special case is just like the regular case expect for negative adjustment is made to record an extra one.
 As we still need to be careful of the (bit) size of n, this means ~(n /= 10)~ is repeated in all cases.
 
 #+BEGIN_SRC C
@@ -1923,7 +1920,7 @@ Note, given previous observations ~getChar((n % b) + 1)~ is required in the firs
 
 ** 3-6
 
-Simple approach is to count down ~w~ whenever a character is added and then add the remianing number of blanks at the end.
+Simple approach is to count down ~w~ whenever a character is added and then add the remaining number of blanks at the end.
 ~itob~ is modified as ~itoa~ is just a special case.
 
 #+BEGIN_SRC C
@@ -2067,7 +2064,7 @@ Here, we do things 'by hand' as ~%~ requires ~int~ args.
   break;
 #+END_SRC
 
-An alterantive is to downcast the doubles to ints:
+An alternative is to downcast the doubles to ints:
 
 #+BEGIN_SRC C
   case '%':
@@ -2783,7 +2780,7 @@ I tripped up here on failing to realise the importance of updating ~c~ to ~d~ fo
 
 ** 5-2
 
-Reminicent of exercises from ch. 4.
+Reminiscent of exercises from ch. 4.
 
 Look for a dot any continue to accumulate, this time dividing the char/int by increasing powers of ten.
 
@@ -2850,7 +2847,7 @@ For the first we want ~*s~ to point to the end of ~s~, before ~\0~.
 So, incrementing ~s~ happens only after the test is passed.
 
 For the second, it doesn't matter where ~*s~ or ~*t~ point to when everything is over and it is important ~\0~ is copied over.
-So, the test is incoroprated into the loop.
+So, the test is Incorporated into the loop.
 
 #+BEGIN_SRC C
   void strcat_ptr(char *s, char *t)
@@ -3042,7 +3039,7 @@ The rest is commented:
 
 Note, it's important to update ~bufp~ only after ~bufp~ when pointing to the start of the line has been stored.
 
-So, the only alterantive to the above is:
+So, the only alternative to the above is:
 
 #+BEGIN_SRC C
   int readlines_main(char *lineptr[], int maxlines, char buf[])
@@ -3068,7 +3065,7 @@ So, the only alterantive to the above is:
   }
 #+END_SRC
 
-Though, this alternative raise the possibility of ~strcpy~ returining an incremented ~bufp~.
+Though, this alternative raise the possibility of ~strcpy~ returning an incremented ~bufp~.
 
 ** 5-8
 
@@ -3096,7 +3093,7 @@ Then, when whether the year is a leap year has been figured out a check on wheth
   }
 #+END_SRC
 
-~month_day~ figures out whether the year is a possibe leap year and then checks whether the total number of days is possible.
+~month_day~ figures out whether the year is a possible leap year and then checks whether the total number of days is possible.
 
 As ~month_day~ doesn't have a return value the error is written to ~*pmonth~ and ~*pday~.
 Though, strictly only one of these needs to be set.
@@ -3501,10 +3498,10 @@ int main(int argc, char *argv[])
 Two things of note:
 
 1. ALLOCSIZE reserves an extra space for testing whether a line pointer has been used.
-   An alterative is to have a counter of something, but this seems clean enough.
+   An alternative is to have a counter of something, but this seems clean enough.
 2. Setting up for a new string happens on the next character after a new line.
    This is so any line stored in the buffer is not overwritten if an EOF immediately follows a new line.
-   There are variious other ways to deal with this, but it seems conceputally easiest to only write when needed.
+   There are various other ways to deal with this, but it seems conceptually easiest to only write when needed.
 3. (1) simplifies printing the lines.
    For, it's possible to print everything starting from the next pointer (looping around).
    And, any pointer that's unused is easily filtered out.
@@ -3516,7 +3513,7 @@ There's not really a good option other than storing everything in main.
 And, this itself is not ideal as it clutters main with details.
 Still, this seems the only way to go, as no other storage persists between function calls.
 
-Though, after thinknig things through the main thinking points ended up being caution regarding values of pointers and pointers, and what to do with mod.
+Though, after thinking things through the main thinking points ended up being caution regarding values of pointers and pointers, and what to do with mod.
 
 Working out a better solution for a full buffer is for some other time.
 At the moment additional characters are ignored, and cycling through the buffer is needed to clear it.
@@ -3554,7 +3551,7 @@ And, an earlier function written for interest fits well for this purpose.
 
 #+END_SRC
 
-As the characters are stored using ~mod~, reconstruction requires starting from ~i~ and returing to the start of the array when required.
+As the characters are stored using ~mod~, reconstruction requires starting from ~i~ and returning to the start of the array when required.
 
 ~tail~ is fragile as written, and assumes after ~-n~ is a number.
 ~atoi~ is from ~stdlib~.
@@ -3682,12 +3679,12 @@ Hum hum.
 
 *** second pass
 
-With directoriy order intended to work with fold it seems there should be a single string sorting function.
+With directory order intended to work with fold it seems there should be a single string sorting function.
 
 Though, as this can't take additional arguments, it relies on the relevant flags being set outside of ~main~.
 
 ~fold~ is an optional conversion, so ~fold ? lower(*s) : *s~ is natural.
-However, inlining this test gets messy.
+However, in-lining this test gets messy.
 So, an opportunity to use ~do… while…~!
 This is important as we want to (maybe) convert to lowercase before equality is checked.
 An additional pair of variables is needed as the (maybe) conversion needs to be stored.
@@ -3779,7 +3776,7 @@ So, the idea is:
 5. Do the comparison.
 6. Replace the stored character (if any).
 
-Or, alteratively, copy each substring to temporary buffers and do the comparison on the substrings.
+Or, alternatively, copy each substring to temporary buffers and do the comparison on the substrings.
 
 There are another two alternatives.
 
@@ -3827,7 +3824,7 @@ Both '_' and '#' are (maybe) used for keywords.
 E.g. ~__LINE__~ or ~#define~.
 ~/~ and ~*~ enable checking for a comment.
 
-To deal with string constants and commends we reconfigre the while loop to skip anything between escape strings (e.g. ~/*~ or ~"~).
+To deal with string constants and commends we reconfigure the while loop to skip anything between escape strings (e.g. ~/*~ or ~"~).
 
 The loop is now:
 
@@ -3877,6 +3874,16 @@ Note, ~esc_str~ should be expanded if longer escape strings are added.
 I think this is sufficient for now.
 The extension to calls to ~isalpha~ and ~isalnum~ just means additional searches are made.
 And, perhaps the easiest thing to do here is to signal whether a non-keyword character was seen and hold this signal until the search happens.
+
+** TODO 6-2
+
+Deferred until after in/out is covered
+
+** TODO 6-3
+
+Deferred until after in/out is covered
+
+** TODO 6-4
 
 ** 6-5
 
