@@ -3877,3 +3877,56 @@ Note, ~esc_str~ should be expanded if longer escape strings are added.
 I think this is sufficient for now.
 The extension to calls to ~isalpha~ and ~isalnum~ just means additional searches are made.
 And, perhaps the easiest thing to do here is to signal whether a non-keyword character was seen and hold this signal until the search happens.
+
+** 6-5
+
+(Initial sketch without testing anything.)
+
+Suppose There are two cases for deletion.
+Either:
+
+1. We're at the start of the list and need to update the hashtab pointer.
+2. We're part way through the list and need to update an ~nlist~ pointer.
+
+We use a ~toDelete~ variable to unify freeing memory and returning a value.
+
+Start by storing the hash and setting ~np~.
+
+If ~np~ is ~NULL~ everything falls through.
+
+Otherwise, if ~np~ is not  ~NULL~ check the name and set ~np~ for deletion if match and point the hash table entry to whatever is next in the list.
+
+If ~np~ is not ~NULL~ and a match hasn't been found work through the list, checking the name of the /next/ element (so long as not ~NULL~).
+
+The only thing I'm not sure about here is the use of ~free~.
+Does ~free~ recursively apply to all objects pointed to by the structure, or are the handled separately?
+
+#+BEGIN_SRC C
+  /* undef: remove s in hashtab */
+  int *undef(char *s)
+  {
+    unsigned hash(char *s);
+
+    unsigned h = hash(s);
+    struct nlist *np = hashtab[h];
+    struct nlist *toDelete;
+
+    if (np != NULL && strcmp(s,np->name) == 0)
+      { toDelete = np;
+	hashtab[h] = np->next; }
+
+    for ( ; np != NULL; np = np->next)
+      if (np->next != NULL && (strcmp(s, np->next->name) == 0))
+	{ toDelete = np;
+	  np->next = toDelete->next;
+	}
+
+    if (toDelete != NULL)
+      { // free(toDelete->name);
+	// free(toDelete->defn);
+	free(toDelete);
+	return 1; } /* undefed */
+    else
+      return 0; /* not found */
+  }
+#+END_SRC
